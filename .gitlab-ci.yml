@@ -1,0 +1,33 @@
+image: gradle:8.7-jdk21
+
+stages:
+  - build
+  - test
+  - docker
+
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+build:
+  stage: build
+  script:
+    - gradle clean build
+  artifacts:
+    paths:
+      - build/libs/*.jar
+
+test:
+  stage: test
+  script:
+    - gradle test
+
+docker:
+  stage: docker
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker build -t uptime-monitor .
+    - docker tag uptime-monitor registry.gitlab.com/<your-username>/<repo-name>:latest
+    - docker push registry.gitlab.com/<your-username>/<repo-name>:latest
+
