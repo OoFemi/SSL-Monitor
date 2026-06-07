@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FOB Uptime & SSL Monitor</title>
+  <link rel="stylesheet" href="dashboard.css">
+  <script defer src="dashboard.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <img src="logo.png" alt="FOB Logo">
+      </div>
+      <div>
+        <div class="sidebar-title">FOB Monitor</div>
+        <div style="font-size:11px;">Uptime & SSL Suite</div>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Main</div>
+      <ul class="nav-list">
+        <li class="nav-item active">📊 Overview</li>
+        <li class="nav-item" onclick="location.href='/logs'">📁 Logs</li>
+      </ul>
+    </div>
+
+    <div class="sidebar-footer">
+      FOB Internal Tooling<br>v1.0 • Uptime & SSL
+    </div>
+  </aside>
+
+  <main class="main">
+    <header>
+      <h1>Uptime & SSL Status</h1>
+      <div style="display:flex; gap:10px;">
+        <span class="pill">Auto-refresh: 120s</span>
+        <button class="btn-outline" onclick="location.href='/logs'">📁 View Logs</button>
+        <button class="btn-outline" onclick="toggleTheme()" id="themeToggle">🌙 Dark Mode</button>
+      </div>
+    </header>
+
+    <div class="cards-row">
+      <div class="card">
+        <div class="card-title">Overall Status</div>
+        <div class="card-value" id="overallStatus">–</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Total Endpoints</div>
+        <div class="card-value" id="totalEndpoints">–</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Last Refresh</div>
+        <div class="card-value" id="lastRefresh">Just now</div>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+      <button class="btn-outline" onclick="openAddUrlModal()">➕ Add URL</button>
+      <div class="pagination">
+        <button class="btn-outline" onclick="prevPage()">Prev</button>
+        <span id="pageInfo" style="font-size:12px;"></span>
+        <button class="btn-outline" onclick="nextPage()">Next</button>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>URL</th>
+          <th>Category</th>
+          <th>Tags</th>
+          <th>Status</th>
+          <th>SSL Expiry</th>
+          <th>Response Time</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="uptimeTableBody"></tbody>
+    </table>
+
+    <h2 style="margin-top:40px;">Response Time Trend</h2>
+    <canvas id="trendChart" height="120"></canvas>
+  </main>
+
+  <!-- Add URL Modal -->
+  <div id="addUrlModal" class="modal">
+    <div class="modal-card">
+      <h3>Add New URL</h3>
+      <input id="newUrlInput" class="modal-input" placeholder="https://example.com">
+      <input id="newCategoryInput" class="modal-input" placeholder="Category (e.g. API, Website)">
+      <input id="newTagsInput" class="modal-input" placeholder="Tags (comma separated)">
+      <div class="modal-actions">
+        <button class="btn-outline" onclick="closeAddUrlModal()">Cancel</button>
+        <button class="btn-outline" onclick="submitNewUrl()">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit URL Modal -->
+  <div id="editUrlModal" class="modal">
+    <div class="modal-card">
+      <h3>Edit URL</h3>
+      <input id="editUrlInput" class="modal-input">
+      <input id="editCategoryInput" class="modal-input">
+      <input id="editTagsInput" class="modal-input">
+      <div class="modal-actions">
+        <button class="btn-outline" onclick="closeEditUrlModal()">Cancel</button>
+        <button class="btn-outline" onclick="submitEditUrl()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Modal -->
+  <div id="historyModal" class="modal">
+    <div class="modal-card">
+      <h3>Health History</h3>
+      <pre id="historyContent" class="history-log"></pre>
+      <div class="modal-actions">
+        <button class="btn-outline" onclick="closeHistoryModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+

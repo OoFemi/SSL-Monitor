@@ -1,0 +1,9 @@
+services:
+  uptime-guard:
+    build: .
+    container_name: uptime-guard
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config.json:/app/config.json
+
