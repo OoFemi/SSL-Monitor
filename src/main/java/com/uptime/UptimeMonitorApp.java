@@ -1,6 +1,7 @@
 package com.uptime;
 
 import io.javalin.Javalin;
+import io.javalin.http.Context;
 import io.javalin.http.staticfiles.Location;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -19,6 +20,7 @@ public class UptimeMonitorApp {
 
     private static final String CONFIG_FILE = "config.json";
     private static final String HISTORY_DIR = "history";
+    private static final String ADMIN_KEY = "fob-secret-key";
 
     private static List<MonitoredUrl> monitoredUrls = new ArrayList<>();
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -30,17 +32,48 @@ public class UptimeMonitorApp {
 
         Javalin app = Javalin.create(config -> {
             config.staticFiles.add("/static", Location.CLASSPATH);
-        }).start(7000); // switched to port 7000
+        }).start(80);
 
-        app.get("/", ctx -> ctx.redirect("/dashboard.html"));
+        app.get("/", ctx -> ctx.redirect("/overview.html"));
+        app.get("/admin", ctx -> ctx.redirect("/admin.html"));
 
-        // ✅ Pagination safeguard
-        app.get("/api/urls", ctx -> {
+        app.get("/api/overview", ctx -> {
+            List<Map<String, Object>> results = new ArrayList<>();
+
+            for (MonitoredUrl u : monitoredUrls) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("url", u.getUrl());
+                row.put("category", u.getCategory());
+                row.put("tags", u.getTags());
+
+                long start = System.currentTimeMillis();
+                boolean isUp = checkStatus(u.getUrl());
+                long responseTime = System.currentTimeMillis() - start;
+                int sslDays = getSSLDays(u.getUrl());
+
+                row.put("isUp", isUp);
+                row.put("responseTime", responseTime);
+                row.put("sslDays", sslDays);
+
+                logHistory(u.getUrl(), isUp, responseTime, sslDays);
+
+                results.add(row);
+            }
+
+            ctx.json(results);
+        });
+
+        app.get("/api/admin/urls", ctx -> {
+            if (!isAdmin(ctx)) {
+                ctx.status(401).result("Unauthorized");
+                return;
+            }
+
             int page = Integer.parseInt(Optional.ofNullable(ctx.queryParam("page")).orElse("1"));
             int size = Integer.parseInt(Optional.ofNullable(ctx.queryParam("size")).orElse("10"));
 
             int start = (page - 1) * size;
-            if (start >= monitoredUrls.size()) start = 0; // reset to first page if out of range
+            if (start >= monitoredUrls.size()) start = 0;
             int end = Math.min(start + size, monitoredUrls.size());
 
             Map<String, Object> response = new HashMap<>();
@@ -51,15 +84,26 @@ public class UptimeMonitorApp {
             ctx.json(response);
         });
 
-        app.post("/api/urls", ctx -> {
+        app.post("/api/admin/urls", ctx -> {
+            if (!isAdmin(ctx)) {
+                ctx.status(401).result("Unauthorized");
+                return;
+            }
+
             MonitoredUrl url = mapper.readValue(ctx.body(), MonitoredUrl.class);
             url.setId(generateId());
+            if (url.getTags() == null) url.setTags(new ArrayList<>());
             monitoredUrls.add(url);
             saveConfig();
-            ctx.status(201);
+            ctx.status(201).json(url);
         });
 
-        app.put("/api/urls/{id}", ctx -> {
+        app.put("/api/admin/urls/{id}", ctx -> {
+            if (!isAdmin(ctx)) {
+                ctx.status(401).result("Unauthorized");
+                return;
+            }
+
             int id = Integer.parseInt(ctx.pathParam("id"));
             MonitoredUrl updated = mapper.readValue(ctx.body(), MonitoredUrl.class);
 
@@ -74,36 +118,16 @@ public class UptimeMonitorApp {
             ctx.status(200);
         });
 
-        app.delete("/api/urls/{id}", ctx -> {
+        app.delete("/api/admin/urls/{id}", ctx -> {
+            if (!isAdmin(ctx)) {
+                ctx.status(401).result("Unauthorized");
+                return;
+            }
+
             int id = Integer.parseInt(ctx.pathParam("id"));
             monitoredUrls.removeIf(u -> u.getId() == id);
             saveConfig();
             ctx.status(200);
-        });
-
-        app.get("/api/health", ctx -> {
-            List<Map<String, Object>> results = new ArrayList<>();
-
-            for (MonitoredUrl u : monitoredUrls) {
-                Map<String, Object> row = new HashMap<>();
-                row.put("id", u.getId());
-
-                long start = System.currentTimeMillis();
-                boolean isUp = checkStatus(u.getUrl());
-                long responseTime = System.currentTimeMillis() - start;
-
-                int sslDays = getSSLDays(u.getUrl());
-
-                row.put("isUp", isUp);
-                row.put("responseTime", responseTime);
-                row.put("sslDays", sslDays);
-
-                logHistory(u.getUrl(), isUp, responseTime, sslDays);
-
-                results.add(row);
-            }
-
-            ctx.json(results);
         });
 
         app.get("/api/history", ctx -> {
@@ -123,7 +147,11 @@ public class UptimeMonitorApp {
             ctx.json(lines);
         });
 
-        System.out.println("✅ Server running at http://localhost:7000");
+        System.out.println("🔥 Server running at http://localhost/");
+    }
+
+    private static boolean isAdmin(Context ctx) {
+        return ADMIN_KEY.equals(ctx.header("X-ADMIN-KEY"));
     }
 
     private static void loadConfig() throws IOException {
@@ -138,7 +166,6 @@ public class UptimeMonitorApp {
     }
 
     private static void saveConfig() throws IOException {
-        if (monitoredUrls == null) return;
         Map<String, Object> data = new HashMap<>();
         data.put("monitoredUrls", monitoredUrls);
         mapper.writerWithDefaultPrettyPrinter().writeValue(new File(CONFIG_FILE), data);
