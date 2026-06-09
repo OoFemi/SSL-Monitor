@@ -1,0 +1,53 @@
+name: Build and Test SSL‑Monitor
+
+# ---------- EVENT TRIGGERS ----------
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # allows manual runs from the Actions tab
+
+# ---------- JOBS ----------
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Set up Java
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # Cache Gradle dependencies
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # Build project
+      - name: Build with Gradle
+        run: ./gradlew clean build --stacktrace
+
+      # Run tests
+      - name: Run tests
+        run: ./gradlew test
+
+      # Upload JAR artifact
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssl-monitor-build
+          path: build/libs/*.jar
+
