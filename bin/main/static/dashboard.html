@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard – FOB Monitor</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="light-mode" id="bodyRoot">
+
+<div class="header">
+  <h2>FOB Monitor Dashboard</h2>
+  <div>
+    <button id="themeToggle">Dark / Light</button>
+    <a href="admin.html">Admin</a>
+    <a href="logs.html">Logs</a>
+  </div>
+</div>
+
+<div class="table-container">
+  <h3>All Monitored URLs</h3>
+  <p class="refresh-note">Auto-refresh every 2 minutes</p>
+
+  <div id="summaryBar" class="summary-bar">
+    <div class="summary-item">
+      <h4>Total URLs</h4>
+      <p id="totalUrls">0</p>
+    </div>
+    <div class="summary-item">
+      <h4>UP</h4>
+      <p id="upCount">0</p>
+    </div>
+    <div class="summary-item">
+      <h4>DOWN</h4>
+      <p id="downCount">0</p>
+    </div>
+    <div class="summary-item">
+      <h4>Avg Response</h4>
+      <p id="avgResponse">0 ms</p>
+    </div>
+  </div>
+
+  <canvas id="uptimeChart" height="80"></canvas>
+
+  <div style="margin-top:10px;text-align:right;">
+    <a href="/api/urls/export" class="export-link">Export CSV</a>
+  </div>
+
+  <table id="dashboardTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>URL</th>
+        <th>Category</th>
+        <th>Tags</th>
+        <th>Status</th>
+        <th>Response Time</th>
+        <th>SSL Days Left</th>
+      </tr>
+    </thead>
+    <tbody id="dashboardTableBody"></tbody>
+  </table>
+</div>
+
+<script>
+const API_BASE = "http://localhost:7000";
+let chartInstance = null;
+
+function loadDashboard() {
+  fetch(`${API_BASE}/api/urls`)
+    .then(res => res.json())
+    .then(data => {
+      const tbody = document.getElementById("dashboardTableBody");
+      tbody.innerHTML = "";
+
+      let up = 0;
+      let down = 0;
+      let total = data.length;
+      let totalResponse = 0;
+
+      const labels = [];
+      const responseTimes = [];
+
+      data.forEach(row => {
+        const statusClass = row.isUp ? "status-up" : "status-down";
+        const statusText = row.isUp ? "UP" : "DOWN";
+
+        if (row.isUp) up++;
+        else down++;
+
+        totalResponse += row.responseTime;
+
+        labels.push(row.url);
+        responseTimes.push(row.responseTime);
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${row.id}</td>
+            <td>${row.url}</td>
+            <td>${row.category}</td>
+            <td>${row.tags ? row.tags.join(", ") : ""}</td>
+            <td class="${statusClass}">${statusText}</td>
+            <td>${row.responseTime} ms</td>
+            <td>${row.sslDays} days</td>
+          </tr>`;
+      });
+
+      document.getElementById("totalUrls").innerText = total;
+      document.getElementById("upCount").innerText = up;
+      document.getElementById("downCount").innerText = down;
+      document.getElementById("avgResponse").innerText =
+        total > 0 ? Math.round(totalResponse / total) + " ms" : "0 ms";
+
+      renderChart(labels, responseTimes);
+    })
+    .catch(err => console.error("Dashboard load failed:", err));
+}
+
+function renderChart(labels, data) {
+  const ctx = document.getElementById("uptimeChart").getContext("2d");
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        label: "Response Time (ms)",
+        data,
+        backgroundColor: "#0078d4"
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: true }
+      }
+    }
+  });
+}
+
+// Dark / Light toggle
+document.getElementById("themeToggle").addEventListener("click", () => {
+  const body = document.getElementById("bodyRoot");
+  if (body.classList.contains("light-mode")) {
+    body.classList.remove("light-mode");
+    body.classList.add("dark-mode");
+  } else {
+    body.classList.remove("dark-mode");
+    body.classList.add("light-mode");
+  }
+});
+
+loadDashboard();
+setInterval(loadDashboard, 120000);
+</script>
+
+</body>
+</html>

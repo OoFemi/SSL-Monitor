@@ -1,96 +1,42 @@
 package com.uptime;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class MonitoredUrl {
-
     private int id;
     private String url;
     private String category;
     private List<String> tags;
+    private boolean isUp;
+    private int responseTime;
+    private int sslDays;
 
-    // Default constructor (required for Jackson)
     public MonitoredUrl() {}
 
-    // Full constructor
-    public MonitoredUrl(int id, String url, String category, List<String> tags) {
+    public MonitoredUrl(int id, String url, String category, List<String> tags,
+                        boolean isUp, int responseTime, int sslDays) {
         this.id = id;
         this.url = url;
         this.category = category;
         this.tags = tags;
+        this.isUp = isUp;
+        this.responseTime = responseTime;
+        this.sslDays = sslDays;
     }
 
-    // -------- SAMPLE URL FACTORY --------
-    public static List<MonitoredUrl> sampleData() {
-        return Arrays.asList(
-            new MonitoredUrl(
-                1,
-                "https://google.com",
-                "Search Engine",
-                Arrays.asList("global", "public", "ssl")
-            ),
-            new MonitoredUrl(
-                2,
-                "https://github.com",
-                "Developer Tools",
-                Arrays.asList("code", "repo", "ssl")
-            ),
-            new MonitoredUrl(
-                3,
-                "https://microsoft.com",
-                "Enterprise",
-                Arrays.asList("production", "uptime", "ssl")
-            ),
-            new MonitoredUrl(
-                4,
-                "https://fobmonitor.com",
-                "Internal",
-                Arrays.asList("fob", "monitor", "ssl")
-            )
-        );
-    }
+    public int getId() { return id; }
+    public String getUrl() { return url; }
+    public String getCategory() { return category; }
+    public List<String> getTags() { return tags; }
+    public boolean isUp() { return isUp; }
+    public int getResponseTime() { return responseTime; }
+    public int getSslDays() { return sslDays; }
 
-    // -------- GETTERS & SETTERS --------
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public List<String> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<String> tags) {
-        this.tags = tags;
-    }
-
-    @Override
-    public String toString() {
-        return "MonitoredUrl{" +
-                "id=" + id +
-                ", url='" + url + '\'' +
-                ", category='" + category + '\'' +
-                ", tags=" + tags +
-                '}';
-    }
+    public void setId(int id) { this.id = id; }
+    public void setUrl(String url) { this.url = url; }
+    public void setCategory(String category) { this.category = category; }
+    public void setTags(List<String> tags) { this.tags = tags; }
+    public void setUp(boolean up) { isUp = up; }
+    public void setResponseTime(int responseTime) { this.responseTime = responseTime; }
+    public void setSslDays(int sslDays) { this.sslDays = sslDays; }
 }

@@ -1,226 +1,142 @@
 package com.uptime;
 
 import io.javalin.Javalin;
-import io.javalin.http.Context;
 import io.javalin.http.staticfiles.Location;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.type.TypeReference;
 
-import java.io.File;
-import java.io.IOException;
+import javax.net.ssl.HttpsURLConnection;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
-import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
-import java.util.*;
-import javax.net.ssl.HttpsURLConnection;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class UptimeMonitorApp {
 
-    private static final String CONFIG_FILE = "config.json";
-    private static final String HISTORY_DIR = "history";
-    private static final String ADMIN_KEY = "fob-secret-key";
-
-    private static List<MonitoredUrl> monitoredUrls = new ArrayList<>();
-    private static final ObjectMapper mapper = new ObjectMapper();
-
-    public static void main(String[] args) throws Exception {
-
-        loadConfig();
-        new File(HISTORY_DIR).mkdirs();
+    public static void main(String[] args) {
 
         Javalin app = Javalin.create(config -> {
             config.staticFiles.add("/static", Location.CLASSPATH);
-        }).start(80);
+        }).start(7000);
 
-        app.get("/", ctx -> ctx.redirect("/overview.html"));
-        app.get("/admin", ctx -> ctx.redirect("/admin.html"));
+        Database db = new Database();
+        AlertService alerts = new AlertService();
 
-        app.get("/api/overview", ctx -> {
-            List<Map<String, Object>> results = new ArrayList<>();
+        // 🔁 Live uptime + SSL checks every 2 minutes
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(() -> {
+            List<MonitoredUrl> urls = db.getAllUrls();
+            for (MonitoredUrl u : urls) {
+                boolean previousUp = u.isUp();
+                try {
+                    long start = System.currentTimeMillis();
+                    HttpURLConnection conn = (HttpURLConnection) new URI(u.getUrl()).toURL().openConnection();
+                    conn.setConnectTimeout(5000);
+                    conn.setReadTimeout(5000);
+                    conn.connect();
 
-            for (MonitoredUrl u : monitoredUrls) {
-                Map<String, Object> row = new HashMap<>();
-                row.put("url", u.getUrl());
-                row.put("category", u.getCategory());
-                row.put("tags", u.getTags());
+                    boolean isUp = conn.getResponseCode() < 400;
+                    long responseTime = System.currentTimeMillis() - start;
 
-                long start = System.currentTimeMillis();
-                boolean isUp = checkStatus(u.getUrl());
-                long responseTime = System.currentTimeMillis() - start;
-                int sslDays = getSSLDays(u.getUrl());
+                    int sslDays = 0;
+                    if (u.getUrl().startsWith("https")) {
+                        try {
+                            HttpsURLConnection https = (HttpsURLConnection) conn;
+                            https.connect();
+                            X509Certificate cert = (X509Certificate) https.getServerCertificates()[0];
+                            Instant expiry = cert.getNotAfter().toInstant();
+                            sslDays = (int) Duration.between(Instant.now(), expiry).toDays();
+                        } catch (Exception ignored) {}
+                    }
 
-                row.put("isUp", isUp);
-                row.put("responseTime", responseTime);
-                row.put("sslDays", sslDays);
+                    u.setUp(isUp);
+                    u.setResponseTime((int) responseTime);
+                    u.setSslDays(sslDays);
+                    db.updateUrl(u.getId(), u);
 
-                logHistory(u.getUrl(), isUp, responseTime, sslDays);
+                    if (previousUp && !isUp) {
+                        alerts.sendAlert("DOWN: " + u.getUrl(),
+                                "URL is DOWN: " + u.getUrl());
+                    }
+                    if (sslDays > 0 && sslDays <= 7) {
+                        alerts.sendAlert("SSL expiring soon: " + u.getUrl(),
+                                "SSL certificate expires in " + sslDays + " days for " + u.getUrl());
+                    }
 
-                results.add(row);
-            }
+                } catch (Exception e) {
+                    u.setUp(false);
+                    u.setResponseTime(0);
+                    u.setSslDays(0);
+                    db.updateUrl(u.getId(), u);
 
-            ctx.json(results);
-        });
-
-        app.get("/api/admin/urls", ctx -> {
-            if (!isAdmin(ctx)) {
-                ctx.status(401).result("Unauthorized");
-                return;
-            }
-
-            int page = Integer.parseInt(Optional.ofNullable(ctx.queryParam("page")).orElse("1"));
-            int size = Integer.parseInt(Optional.ofNullable(ctx.queryParam("size")).orElse("10"));
-
-            int start = (page - 1) * size;
-            if (start >= monitoredUrls.size()) start = 0;
-            int end = Math.min(start + size, monitoredUrls.size());
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("page", page);
-            response.put("total", monitoredUrls.size());
-            response.put("items", monitoredUrls.subList(start, end));
-
-            ctx.json(response);
-        });
-
-        app.post("/api/admin/urls", ctx -> {
-            if (!isAdmin(ctx)) {
-                ctx.status(401).result("Unauthorized");
-                return;
-            }
-
-            MonitoredUrl url = mapper.readValue(ctx.body(), MonitoredUrl.class);
-            url.setId(generateId());
-            if (url.getTags() == null) url.setTags(new ArrayList<>());
-            monitoredUrls.add(url);
-            saveConfig();
-            ctx.status(201).json(url);
-        });
-
-        app.put("/api/admin/urls/{id}", ctx -> {
-            if (!isAdmin(ctx)) {
-                ctx.status(401).result("Unauthorized");
-                return;
-            }
-
-            int id = Integer.parseInt(ctx.pathParam("id"));
-            MonitoredUrl updated = mapper.readValue(ctx.body(), MonitoredUrl.class);
-
-            for (MonitoredUrl u : monitoredUrls) {
-                if (u.getId() == id) {
-                    u.setUrl(updated.getUrl());
-                    u.setCategory(updated.getCategory());
-                    u.setTags(updated.getTags());
+                    if (previousUp) {
+                        alerts.sendAlert("DOWN: " + u.getUrl(),
+                                "URL is DOWN: " + u.getUrl());
+                    }
                 }
             }
-            saveConfig();
-            ctx.status(200);
+            System.out.println("✔ Live check completed at " + LocalTime.now());
+        }, 0, 2, TimeUnit.MINUTES);
+
+        // Dashboard API
+        app.get("/api/urls", ctx -> ctx.json(db.getAllUrls()));
+
+        // CSV export
+        app.get("/api/urls/export", ctx -> {
+            ctx.contentType("text/csv");
+            ctx.header("Content-Disposition", "attachment; filename=\"uptime.csv\"");
+            StringBuilder sb = new StringBuilder();
+            sb.append("id,url,category,tags,isUp,responseTime,sslDays\n");
+            for (MonitoredUrl u : db.getAllUrls()) {
+                sb.append(u.getId()).append(",")
+                  .append(u.getUrl()).append(",")
+                  .append(u.getCategory()).append(",")
+                  .append(String.join("|", u.getTags())).append(",")
+                  .append(u.isUp()).append(",")
+                  .append(u.getResponseTime()).append(",")
+                  .append(u.getSslDays()).append("\n");
+            }
+            ctx.result(sb.toString());
         });
 
-        app.delete("/api/admin/urls/{id}", ctx -> {
-            if (!isAdmin(ctx)) {
-                ctx.status(401).result("Unauthorized");
-                return;
+        // Multi-user admin login
+        app.post("/api/admin/login", ctx -> {
+            String username = ctx.formParam("username");
+            String password = ctx.formParam("password");
+            AdminUser user = db.getAdminUser(username, password);
+            if (user != null) {
+                ctx.status(200).json(user);
+            } else {
+                ctx.status(401).result("Invalid credentials");
             }
+        });
 
+        // Add URL
+        app.post("/api/admin/add-url", ctx -> {
+            MonitoredUrl url = ctx.bodyAsClass(MonitoredUrl.class);
+            db.saveUrl(url);
+            ctx.status(201).result("Saved");
+        });
+
+        // Edit URL
+        app.put("/api/admin/edit-url/:id", ctx -> {
             int id = Integer.parseInt(ctx.pathParam("id"));
-            monitoredUrls.removeIf(u -> u.getId() == id);
-            saveConfig();
-            ctx.status(200);
+            MonitoredUrl url = ctx.bodyAsClass(MonitoredUrl.class);
+            db.updateUrl(id, url);
+            ctx.status(200).result("Updated");
         });
 
-        app.get("/api/history", ctx -> {
-            String url = ctx.queryParam("url");
-            if (url == null || url.isEmpty()) {
-                ctx.json(Collections.emptyList());
-                return;
-            }
-
-            File file = new File(HISTORY_DIR + "/" + url.replaceAll("[^a-zA-Z0-9]", "_") + ".log");
-            if (!file.exists()) {
-                ctx.json(Collections.emptyList());
-                return;
-            }
-
-            List<String> lines = java.nio.file.Files.readAllLines(file.toPath());
-            ctx.json(lines);
+        // Delete URL
+        app.delete("/api/admin/delete-url/:id", ctx -> {
+            int id = Integer.parseInt(ctx.pathParam("id"));
+            db.deleteUrl(id);
+            ctx.status(200).result("Deleted");
         });
 
-        System.out.println("🔥 Server running at http://localhost/");
-    }
-
-    private static boolean isAdmin(Context ctx) {
-        return ADMIN_KEY.equals(ctx.header("X-ADMIN-KEY"));
-    }
-
-    private static void loadConfig() throws IOException {
-        File file = new File(CONFIG_FILE);
-        if (!file.exists()) {
-            monitoredUrls = new ArrayList<>();
-            return;
-        }
-        Map<String, List<MonitoredUrl>> data =
-                mapper.readValue(file, new TypeReference<Map<String, List<MonitoredUrl>>>() {});
-        monitoredUrls = data.getOrDefault("monitoredUrls", new ArrayList<>());
-    }
-
-    private static void saveConfig() throws IOException {
-        Map<String, Object> data = new HashMap<>();
-        data.put("monitoredUrls", monitoredUrls);
-        mapper.writerWithDefaultPrettyPrinter().writeValue(new File(CONFIG_FILE), data);
-    }
-
-    private static int generateId() {
-        return monitoredUrls.stream().mapToInt(MonitoredUrl::getId).max().orElse(0) + 1;
-    }
-
-    private static boolean checkStatus(String urlStr) {
-        try {
-            URL url = new URI(urlStr).toURL();
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(4000);
-            conn.setReadTimeout(4000);
-            conn.setRequestMethod("GET");
-            int code = conn.getResponseCode();
-            return code >= 200 && code < 400;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private static int getSSLDays(String urlStr) {
-        try {
-            if (!urlStr.startsWith("https")) return -1;
-
-            URL url = new URI(urlStr).toURL();
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-            conn.connect();
-
-            Certificate[] certs = conn.getServerCertificates();
-            X509Certificate cert = (X509Certificate) certs[0];
-
-            long diff = cert.getNotAfter().getTime() - System.currentTimeMillis();
-            return (int) (diff / (1000 * 60 * 60 * 24));
-
-        } catch (Exception e) {
-            return -1;
-        }
-    }
-
-    private static void logHistory(String url, boolean up, long time, int sslDays) {
-        try {
-            String fileName = HISTORY_DIR + "/" + url.replaceAll("[^a-zA-Z0-9]", "_") + ".log";
-            String line = String.format(
-                    "%s | UP: %s | %d ms | SSL: %d days",
-                    new Date(), up, time, sslDays
-            );
-            java.nio.file.Files.write(
-                    new File(fileName).toPath(),
-                    (line + "\n").getBytes(),
-                    java.nio.file.StandardOpenOption.CREATE,
-                    java.nio.file.StandardOpenOption.APPEND
-            );
-        } catch (Exception ignored) {}
+        app.get("/", ctx -> ctx.redirect("/dashboard.html"));
     }
 }
