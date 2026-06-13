@@ -4,32 +4,52 @@ plugins {
 }
 
 group = 'com.uptime'
-version = '1.0-SNAPSHOT'
+version = '1.0'
 
 repositories {
+    // Primary
     mavenCentral()
+
+    // Backup mirrors (fixes slow or blocked downloads)
+    maven { url 'https://repo.maven.apache.org/maven2' }
+    maven { url 'https://maven.aliyun.com/repository/public' }
+    maven { url 'https://maven.aliyun.com/repository/central' }
+    maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
 }
 
 dependencies {
+    // Web framework
     implementation 'io.javalin:javalin:5.6.1'
+
+    // Logging
+    implementation 'org.slf4j:slf4j-simple:2.0.9'
+
+    // SQLite database
+    implementation 'org.xerial:sqlite-jdbc:3.45.1.0'
+
+    // JSON support
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.1'
-    implementation 'org.xerial:sqlite-jdbc:3.45.3.0'
-    implementation 'org.slf4j:slf4j-simple:2.0.7'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.17.1'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.17.1'
+
+    // ✅ Email support (Jakarta Mail)
+    implementation 'com.sun.mail:jakarta.mail:2.0.1'
 }
 
 application {
     mainClass = 'com.uptime.UptimeMonitorApp'
 }
 
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-}
-
 jar {
-    manifest {
-        attributes('Main-Class': application.mainClass)
-    }
+    archiveBaseName = 'uptime-monitor'
+    archiveVersion = ''
+    archiveClassifier = ''
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes('Main-Class': 'com.uptime.UptimeMonitorApp')
+    }
+
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }

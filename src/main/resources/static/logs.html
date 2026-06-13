@@ -1,36 +1,102 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Logs – FOB Monitor</title>
-  <link rel="stylesheet" href="/styles.css">
+<meta charset="UTF-8">
+<title>FOB Uptime Monitor – Logs</title>
+<link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
+  <aside class="sidebar">
+    <h2>FOB Uptime Monitor</h2>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="admin.html">Admin</a>
+      <a class="active" href="logs.html">Logs</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+    <div class="theme-toggle">
+      <label>
+        <input type="checkbox" id="themeSwitch">
+        Dark mode
+      </label>
+    </div>
+  </aside>
 
-<nav class="top-nav">
-  <a href="/overview.html">Overview</a>
-  <a href="/admin.html">Admin</a>
-  <a href="/dashboard.html">Dashboard</a>
-  <a href="/logs.html">Logs</a>
-</nav>
+  <main class="content">
+    <header>
+      <h1>Event Logs</h1>
+      <p>Recent checks, alerts, and status changes.</p>
+    </header>
 
-<h1>Logs</h1>
+    <table id="logsTable">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>URL</th>
+          <th>Level</th>
+          <th>Message</th>
+        </tr>
+      </thead>
+      <tbody id="logsTableBody"></tbody>
+    </table>
 
-<p style="margin-left:20px;">Enter URL to view history:</p>
-
-<input id="logUrl" style="margin-left:20px;" placeholder="https://example.com">
-<button onclick="loadLogs()">Load</button>
-
-<pre id="logOutput" style="margin:20px;background:white;padding:20px;border-radius:8px;"></pre>
+    <footer>
+      <span id="logsUpdated">Last updated: —</span>
+      <button id="logsRefreshBtn">Refresh</button>
+    </footer>
+  </main>
 
 <script>
-function loadLogs() {
-  const url = document.querySelector("#logUrl").value;
-  fetch(`/api/history?url=${encodeURIComponent(url)}`)
-    .then(res => res.json())
-    .then(lines => {
-      document.querySelector("#logOutput").textContent = lines.join("\n");
-    });
+const API_BASE = window.location.origin;
+
+// dark mode
+const themeSwitch = document.getElementById("themeSwitch");
+const savedTheme = localStorage.getItem("fob-theme");
+if (savedTheme === "dark") {
+  document.body.classList.add("dark");
+  themeSwitch.checked = true;
 }
+themeSwitch.addEventListener("change", () => {
+  if (themeSwitch.checked) {
+    document.body.classList.add("dark");
+    localStorage.setItem("fob-theme", "dark");
+  } else {
+    document.body.classList.remove("dark");
+    localStorage.setItem("fob-theme", "light");
+  }
+});
+
+function formatTime(ts) {
+  if (!ts) return "—";
+  const d = new Date(ts);
+  return d.toLocaleString();
+}
+
+function loadLogs() {
+  fetch(`${API_BASE}/api/logs`)
+    .then(res => res.json())
+    .then(data => {
+      const tbody = document.getElementById("logsTableBody");
+      tbody.innerHTML = "";
+      data.forEach(log => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${formatTime(log.timestamp)}</td>
+            <td>${log.url || ""}</td>
+            <td>${log.level || ""}</td>
+            <td>${log.message || ""}</td>
+          </tr>`;
+      });
+      document.getElementById("logsUpdated").innerText =
+        "Last updated: " + new Date().toLocaleTimeString();
+    })
+    .catch(err => console.error("Logs error:", err));
+}
+
+document.getElementById("logsRefreshBtn").addEventListener("click", loadLogs);
+
+loadLogs();
 </script>
 
 </body>

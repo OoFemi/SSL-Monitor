@@ -2,183 +2,134 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Admin – FOB Monitor</title>
+<title>FOB Uptime Monitor – Admin</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body class="light-mode" id="bodyRoot">
+<body>
+  <aside class="sidebar">
+    <h2>FOB Uptime Monitor</h2>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a class="active" href="admin.html">Admin</a>
+      <a href="logs.html">Logs</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </aside>
 
-<div class="sidebar">
-  <h2>FOB Monitor</h2>
-  <a href="dashboard.html">Dashboard</a>
-  <a href="admin.html">Admin</a>
-  <a href="logs.html">Logs</a>
-  <button id="themeToggle">Toggle Dark Mode</button>
-</div>
+  <main class="content">
+    <h1>Manage URLs</h1>
 
-<div class="content">
-  <h2>Admin Panel</h2>
+    <section class="add-section">
+      <h2>Add New URL</h2>
 
-  <div id="loginSection">
-    <h3>Login</h3>
-    <input id="username" placeholder="Username">
-    <input id="password" type="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-  </div>
+      <label>URL</label>
+      <input id="urlInput" type="text" placeholder="https://example.com">
 
-  <div id="adminSection" style="display:none;">
-    <p id="welcomeUser"></p>
-    <button onclick="openModal()">Add New URL</button>
+      <label>Category</label>
+      <input id="categoryInput" type="text" placeholder="Production">
 
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>URL</th>
-          <th>Category</th>
-          <th>Tags</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="urlTableBody"></tbody>
-    </table>
-  </div>
-</div>
+      <label>Tags (comma separated)</label>
+      <input id="tagsInput" type="text" placeholder="api,frontend">
 
-<div id="modal" class="modal">
-  <div class="modal-content">
-    <h3 id="modalTitle">Add URL</h3>
+      <button id="addBtn">Add URL</button>
+    </section>
 
-    <label>URL:</label>
-    <input id="newUrl" type="text">
+    <section class="list-section">
+      <h2>Monitored URLs</h2>
 
-    <label>Category:</label>
-    <input id="newCategory" type="text">
-
-    <label>Tags (comma separated):</label>
-    <input id="newTags" type="text">
-
-    <button onclick="saveUrl()">Save</button>
-    <button onclick="closeModal()">Cancel</button>
-  </div>
-</div>
+      <table id="adminTable">
+        <thead>
+          <tr>
+            <th>URL</th>
+            <th>Category</th>
+            <th>Tags</th>
+            <th>Status</th>
+            <th>SSL Days</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="adminTableBody"></tbody>
+      </table>
+    </section>
+  </main>
 
 <script>
-const API_BASE = "http://localhost:7000";
-let editingId = null;
-let currentUser = null;
+const API_BASE = window.location.origin;
 
-function login() {
-  const username = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value.trim();
+// LOAD EXISTING URLS
+async function loadAdminUrls() {
+  const res = await fetch(`${API_BASE}/api/urls`);
+  const data = await res.json();
 
-  fetch(`${API_BASE}/api/admin/login`, {
+  const tbody = document.getElementById("adminTableBody");
+  tbody.innerHTML = "";
+
+  data.forEach(row => {
+    const tags = Array.isArray(row.tags) ? row.tags.join(", ") : "";
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${row.url}</td>
+        <td>${row.category || ""}</td>
+        <td>${tags}</td>
+        <td>${row.isUp ? "UP" : "DOWN"}</td>
+        <td>${row.sslDays}</td>
+        <td>
+          <button onclick="deleteUrl(${row.id})">Delete</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+// DELETE URL
+async function deleteUrl(id) {
+  await fetch(`${API_BASE}/api/admin/delete-url/${id}`, { method: "DELETE" });
+  loadAdminUrls();
+}
+
+// ADD URL
+document.getElementById("addBtn").addEventListener("click", async () => {
+  const url = document.getElementById("urlInput").value.trim();
+  const category = document.getElementById("categoryInput").value.trim();
+  const tagsRaw = document.getElementById("tagsInput").value.trim();
+
+  if (!url) {
+    alert("Please enter a valid URL");
+    return;
+  }
+
+  const payload = {
+    url,
+    category,
+    tags: tagsRaw ? tagsRaw.split(",").map(t => t.trim()) : [],
+    isUp: false,
+    responseTime: 0,
+    sslDays: 0,
+    lastChecked: Date.now(),
+    historyResponseTimes: []
+  };
+
+  const res = await fetch(`${API_BASE}/api/admin/add-url`, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
-  }).then(async res => {
-    if (res.status === 200) {
-      currentUser = await res.json();
-      document.getElementById("loginSection").style.display = "none";
-      document.getElementById("adminSection").style.display = "block";
-      document.getElementById("welcomeUser").innerText =
-        `Logged in as ${currentUser.username} (${currentUser.email})`;
-      loadAdminData();
-    } else {
-      alert("Invalid credentials");
-    }
-  });
-}
-
-function loadAdminData() {
-  fetch(`${API_BASE}/api/urls`)
-    .then(res => res.json())
-    .then(data => {
-      const tbody = document.getElementById("urlTableBody");
-      tbody.innerHTML = "";
-
-      data.forEach(row => {
-        const tagsStr = row.tags ? row.tags.join(", ") : "";
-        tbody.innerHTML += `
-          <tr>
-            <td>${row.id}</td>
-            <td>${row.url}</td>
-            <td>${row.category}</td>
-            <td>${tagsStr}</td>
-            <td>
-              <button onclick="editUrl(${row.id}, '${escapeQuotes(row.url)}', '${escapeQuotes(row.category)}', '${escapeQuotes(tagsStr)}')">Edit</button>
-              <button onclick="deleteUrl(${row.id})">Delete</button>
-            </td>
-          </tr>`;
-      });
-    });
-}
-
-function escapeQuotes(str) {
-  return (str || "").replace(/'/g, "\\'");
-}
-
-function openModal() {
-  editingId = null;
-  document.getElementById("modalTitle").innerText = "Add URL";
-  document.getElementById("newUrl").value = "";
-  document.getElementById("newCategory").value = "";
-  document.getElementById("newTags").value = "";
-  document.getElementById("modal").style.display = "flex";
-}
-
-function closeModal() {
-  document.getElementById("modal").style.display = "none";
-}
-
-function editUrl(id, url, category, tags) {
-  editingId = id;
-  document.getElementById("modalTitle").innerText = "Edit URL";
-  document.getElementById("newUrl").value = url;
-  document.getElementById("newCategory").value = category;
-  document.getElementById("newTags").value = tags;
-  document.getElementById("modal").style.display = "flex";
-}
-
-function saveUrl() {
-  const url = document.getElementById("newUrl").value.trim();
-  const category = document.getElementById("newCategory").value.trim();
-  const tags = document.getElementById("newTags").value.trim()
-                  .split(",").map(t => t.trim()).filter(t => t.length > 0);
-
-  const payload = JSON.stringify({ url, category, tags });
-  const endpoint = editingId
-      ? `${API_BASE}/api/admin/edit-url/${editingId}`
-      : `${API_BASE}/api/admin/add-url`;
-  const method = editingId ? "PUT" : "POST";
-
-  fetch(endpoint, {
-    method,
     headers: { "Content-Type": "application/json" },
-    body: payload
-  }).then(() => {
-    closeModal();
-    loadAdminData();
+    body: JSON.stringify(payload)
   });
-}
 
-function deleteUrl(id) {
-  if (!confirm("Delete this URL?")) return;
-  fetch(`${API_BASE}/api/admin/delete-url/${id}`, { method: "DELETE" })
-    .then(() => loadAdminData());
-}
-
-// Dark / Light toggle
-document.getElementById("themeToggle").addEventListener("click", () => {
-  const body = document.getElementById("bodyRoot");
-  if (body.classList.contains("light-mode")) {
-    body.classList.remove("light-mode");
-    body.classList.add("dark-mode");
+  if (res.ok) {
+    alert("URL added successfully!");
+    document.getElementById("urlInput").value = "";
+    document.getElementById("categoryInput").value = "";
+    document.getElementById("tagsInput").value = "";
+    loadAdminUrls();
   } else {
-    body.classList.remove("dark-mode");
-    body.classList.add("light-mode");
+    const text = await res.text();
+    alert("Failed to add URL: " + text);
   }
 });
+
+loadAdminUrls();
 </script>
 
 </body>

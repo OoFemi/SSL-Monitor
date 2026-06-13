@@ -2,71 +2,95 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Dashboard – FOB Monitor</title>
+<title>FOB Uptime Monitor – Dashboard</title>
 <link rel="stylesheet" href="css/style.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
-<body class="light-mode" id="bodyRoot">
-
-<div class="header">
-  <h2>FOB Monitor Dashboard</h2>
-  <div>
-    <button id="themeToggle">Dark / Light</button>
-    <a href="admin.html">Admin</a>
-    <a href="logs.html">Logs</a>
-  </div>
-</div>
-
-<div class="table-container">
-  <h3>All Monitored URLs</h3>
-  <p class="refresh-note">Auto-refresh every 2 minutes</p>
-
-  <div id="summaryBar" class="summary-bar">
-    <div class="summary-item">
-      <h4>Total URLs</h4>
-      <p id="totalUrls">0</p>
+<body>
+  <aside class="sidebar">
+    <h2>FOB Uptime Monitor</h2>
+    <nav>
+      <a class="active" href="dashboard.html">Dashboard</a>
+      <a href="admin.html">Admin</a>
+      <a href="logs.html">Logs</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+    <div class="theme-toggle">
+      <label>
+        <input type="checkbox" id="themeSwitch">
+        Dark mode
+      </label>
     </div>
-    <div class="summary-item">
-      <h4>UP</h4>
-      <p id="upCount">0</p>
-    </div>
-    <div class="summary-item">
-      <h4>DOWN</h4>
-      <p id="downCount">0</p>
-    </div>
-    <div class="summary-item">
-      <h4>Avg Response</h4>
-      <p id="avgResponse">0 ms</p>
-    </div>
-  </div>
+  </aside>
 
-  <canvas id="uptimeChart" height="80"></canvas>
+  <main class="content">
+    <header>
+      <h1>Real‑time Website Health</h1>
+      <p>Auto‑refresh every 2 minutes</p>
+    </header>
 
-  <div style="margin-top:10px;text-align:right;">
-    <a href="/api/urls/export" class="export-link">Export CSV</a>
-  </div>
+    <section class="summary">
+      <div class="card up"><h3>UP</h3><p id="upCount">0</p></div>
+      <div class="card down"><h3>DOWN</h3><p id="downCount">0</p></div>
+      <div class="card avg"><h3>Avg Response</h3><p id="avgResponse">0 ms</p></div>
+      <div class="card ssl"><h3>SSL Expiry</h3><p id="avgSSL">0 Days Left</p></div>
+    </section>
 
-  <table id="dashboardTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>URL</th>
-        <th>Category</th>
-        <th>Tags</th>
-        <th>Status</th>
-        <th>Response Time</th>
-        <th>SSL Days Left</th>
-      </tr>
-    </thead>
-    <tbody id="dashboardTableBody"></tbody>
-  </table>
-</div>
+    <table id="dashboardTable" style="margin-top:20px;">
+      <thead>
+        <tr>
+          <th>Target URL</th>
+          <th>Category / Tags</th>
+          <th>Status</th>
+          <th>Last Check</th>
+          <th>Avg. Response Time</th>
+          <th>SSL Days Left</th>
+          <th>Trend</th>
+        </tr>
+      </thead>
+      <tbody id="dashboardTableBody"></tbody>
+    </table>
+
+    <footer>
+      <span id="lastUpdated">Last updated: —</span>
+      <div>
+        <button id="refreshBtn">Refresh</button>
+        <button id="exportBtn">Export CSV</button>
+      </div>
+    </footer>
+  </main>
 
 <script>
+// 🔥 FIXED: Always use backend port 7000
 const API_BASE = "http://localhost:7000";
-let chartInstance = null;
 
+// ----------------------
+// THEME SWITCH
+// ----------------------
+const themeSwitch = document.getElementById("themeSwitch");
+const savedTheme = localStorage.getItem("fob-theme");
+if (savedTheme === "dark") {
+  document.body.classList.add("dark");
+  themeSwitch.checked = true;
+}
+themeSwitch.addEventListener("change", () => {
+  document.body.classList.toggle("dark", themeSwitch.checked);
+  localStorage.setItem("fob-theme", themeSwitch.checked ? "dark" : "light");
+});
+
+// ----------------------
+// FORMAT TIME
+// ----------------------
+function formatTime(ts) {
+  if (!ts) return "—";
+  const d = new Date(ts);
+  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+// ----------------------
+// LOAD DASHBOARD DATA
+// ----------------------
 function loadDashboard() {
   fetch(`${API_BASE}/api/urls`)
     .then(res => res.json())
@@ -74,85 +98,100 @@ function loadDashboard() {
       const tbody = document.getElementById("dashboardTableBody");
       tbody.innerHTML = "";
 
-      let up = 0;
-      let down = 0;
-      let total = data.length;
-      let totalResponse = 0;
+      let up = 0, down = 0, totalResponse = 0, totalSSL = 0;
 
-      const labels = [];
-      const responseTimes = [];
-
-      data.forEach(row => {
+      data.forEach((row, idx) => {
+        const status = row.isUp ? "UP" : "DOWN";
         const statusClass = row.isUp ? "status-up" : "status-down";
-        const statusText = row.isUp ? "UP" : "DOWN";
+        if (row.isUp) up++; else down++;
+        totalResponse += row.responseTime || 0;
+        totalSSL += row.sslDays || 0;
 
-        if (row.isUp) up++;
-        else down++;
+        const tags = Array.isArray(row.tags)
+          ? row.tags.map(t => `<span class="badge">${t}</span>`).join(" ")
+          : "";
 
-        totalResponse += row.responseTime;
-
-        labels.push(row.url);
-        responseTimes.push(row.responseTime);
+        const sparkId = `spark-${idx}`;
 
         tbody.innerHTML += `
           <tr>
-            <td>${row.id}</td>
             <td>${row.url}</td>
-            <td>${row.category}</td>
-            <td>${row.tags ? row.tags.join(", ") : ""}</td>
-            <td class="${statusClass}">${statusText}</td>
-            <td>${row.responseTime} ms</td>
-            <td>${row.sslDays} days</td>
+            <td>${row.category || ""} ${tags}</td>
+            <td class="${statusClass}">${status}</td>
+            <td>${formatTime(row.lastChecked)}</td>
+            <td>${row.responseTime ?? 0} ms</td>
+            <td>${row.sslDays ?? 0} Days Left</td>
+            <td><canvas id="${sparkId}" class="sparkline"></canvas></td>
           </tr>`;
       });
 
-      document.getElementById("totalUrls").innerText = total;
       document.getElementById("upCount").innerText = up;
       document.getElementById("downCount").innerText = down;
       document.getElementById("avgResponse").innerText =
-        total > 0 ? Math.round(totalResponse / total) + " ms" : "0 ms";
+        data.length ? Math.round(totalResponse / data.length) + " ms" : "0 ms";
+      document.getElementById("avgSSL").innerText =
+        data.length ? Math.round(totalSSL / data.length) + " Days Left" : "0 Days Left";
+      document.getElementById("lastUpdated").innerText =
+        "Last updated: " + new Date().toLocaleTimeString();
 
-      renderChart(labels, responseTimes);
+      renderSparklines(data);
     })
-    .catch(err => console.error("Dashboard load failed:", err));
+    .catch(err => console.error("Dashboard error:", err));
 }
 
-function renderChart(labels, data) {
-  const ctx = document.getElementById("uptimeChart").getContext("2d");
-  if (chartInstance) chartInstance.destroy();
-  chartInstance = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [{
-        label: "Response Time (ms)",
-        data,
-        backgroundColor: "#0078d4"
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: true }
+// ----------------------
+// SPARKLINES
+// ----------------------
+function renderSparklines(data) {
+  data.forEach((row, idx) => {
+    const history = Array.isArray(row.historyResponseTimes)
+      ? row.historyResponseTimes
+      : null;
+    if (!history || history.length === 0) return;
+
+    const canvas = document.getElementById(`spark-${idx}`);
+    if (!canvas) return;
+
+    new Chart(canvas.getContext("2d"), {
+      type: "line",
+      data: {
+        labels: history.map((_, i) => i + 1),
+        datasets: [{
+          data: history,
+          borderColor: row.isUp ? "#0078d4" : "#dc3545",
+          backgroundColor: row.isUp
+            ? "rgba(0,120,212,0.15)"
+            : "rgba(220,53,69,0.15)",
+          fill: true,
+          tension: 0.3,
+          pointRadius: 0
+        }]
+      },
+      options: {
+        responsive: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { display: false }, y: { display: false } }
       }
-    }
+    });
   });
 }
 
-// Dark / Light toggle
-document.getElementById("themeToggle").addEventListener("click", () => {
-  const body = document.getElementById("bodyRoot");
-  if (body.classList.contains("light-mode")) {
-    body.classList.remove("light-mode");
-    body.classList.add("dark-mode");
-  } else {
-    body.classList.remove("dark-mode");
-    body.classList.add("light-mode");
-  }
+// ----------------------
+// BUTTONS
+// ----------------------
+document.getElementById("refreshBtn").addEventListener("click", loadDashboard);
+document.getElementById("exportBtn").addEventListener("click", () => {
+  window.location.href = `${API_BASE}/api/urls/export`;
 });
 
+// ----------------------
+// AUTO REFRESH
+// ----------------------
+const savedInterval = parseInt(localStorage.getItem("fob-refresh-interval") || "120", 10);
+const intervalMs = isNaN(savedInterval) ? 120000 : savedInterval * 1000;
+
 loadDashboard();
-setInterval(loadDashboard, 120000);
+setInterval(loadDashboard, intervalMs);
 </script>
 
 </body>
