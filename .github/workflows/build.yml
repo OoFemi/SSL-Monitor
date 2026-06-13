@@ -88,10 +88,18 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push Docker image
+        shell: bash
         run: |
           VERSION=${{ needs.tag.outputs.version }}
           IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/ssl-monitor
 
           echo "Building Docker image: $IMAGE_NAME:$VERSION"
 
-          docker buildx build --platform linux/amd64 -t $IMAGE_NAME:latest -t $IMAGE_NAME:$VERSION --push .
+          # Ensure Docker is available
+          docker version
+
+          # Build and push image
+          docker buildx build --platform linux/amd64 \
+            -t $IMAGE_NAME:latest \
+            -t $IMAGE_NAME:$VERSION \
+            --push .
