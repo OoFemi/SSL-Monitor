@@ -1,0 +1,191 @@
+/* ===== GLOBAL ===== */
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #f5f7fa;
+  color: #333;
+}
+
+body.dark {
+  background: #121212;
+  color: #eee;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  position: fixed;
+  left: 0; top: 0;
+  width: 220px; height: 100vh;
+  background: #1e1e2f; color: #fff;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.sidebar h2 {
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+.sidebar nav a {
+  display: block;
+  color: #fff;
+  padding: 10px 0;
+  text-decoration: none;
+}
+
+.sidebar nav a.active {
+  font-weight: bold;
+}
+
+.sidebar nav a:hover {
+  text-decoration: underline;
+}
+
+.sidebar .theme-toggle {
+  margin-top: 20px;
+  font-size: 13px;
+}
+
+/* ===== CONTENT ===== */
+.content {
+  margin-left: 240px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+header p {
+  margin: 4px 0 16px;
+  color: #666;
+}
+
+body.dark header p {
+  color: #aaa;
+}
+
+/* ===== SUMMARY CARDS ===== */
+.summary {
+  display: flex;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.card {
+  flex: 1;
+  padding: 15px;
+  border-radius: 8px;
+  color: #fff;
+  text-align: center;
+}
+
+.card.up { background: #28a745; }
+.card.down { background: #dc3545; }
+.card.avg { background: #0078d4; }
+.card.ssl { background: #6f42c1; }
+
+/* ===== TABLE ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+body.dark table {
+  background: #1f1f1f;
+}
+
+th, td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+  font-size: 14px;
+}
+
+body.dark th, body.dark td {
+  border-bottom: 1px solid #333;
+}
+
+.status-up {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.status-down {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #666;
+}
+
+body.dark footer {
+  color: #aaa;
+}
+
+/* ===== BUTTONS ===== */
+button {
+  background: #0078d4;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+button:hover {
+  background: #005fa3;
+}
+
+/* ===== FORMS ===== */
+input, select, textarea {
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.form-row {
+  margin-bottom: 10px;
+}
+
+.form-row label {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.form-row input, .form-row select, .form-row textarea {
+  width: 100%;
+  padding: 6px 8px;
+  box-sizing: border-box;
+}
+
+/* ===== TAG BADGES ===== */
+.badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  background: #eee;
+  margin-right: 4px;
+}
+
+body.dark .badge {
+  background: #333;
+}
+
+/* ===== SPARKLINE CANVAS ===== */
+.sparkline {
+  width: 80px;
+  height: 24px;
+}
