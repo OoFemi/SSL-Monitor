@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read   # we are NOT pushing code back to GitHub
+  contents: read
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -65,7 +65,7 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Output version
-        run: 'echo "Generated version: ${{ steps.version.outputs.version }}"'
+        run: echo "Generated version: ${{ steps.version.outputs.version }}"
 
 
   push-image:
@@ -86,7 +86,13 @@ jobs:
       - name: Build and push Docker image
         run: |
           VERSION=${{ needs.tag.outputs.version }}
-          docker build . -t ${{ secrets.DOCKERHUB_USERNAME }}/ssl-monitor:latest
-          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/ssl-monitor:latest ${{ secrets.DOCKERHUB_USERNAME }}/ssl-monitor:$VERSION
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/ssl-monitor:latest
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/ssl-monitor:$VERSION
+          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/ssl-monitor
+
+          echo "Building Docker image: $IMAGE_NAME:$VERSION"
+
+          # Build with both tags in one command
+          docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:$VERSION .
+
+          # Push both tags
+          docker push $IMAGE_NAME:latest
+          docker push $IMAGE_NAME:$VERSION
