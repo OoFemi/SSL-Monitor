@@ -43,10 +43,21 @@ jobs:
       - name: Run tests
         run: ./gradlew test
 
+      - name: Commit build artifacts to GitHub
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add build/libs/*.jar
+          git commit -m "Auto-build: add latest JAR"
+          git push origin main
+
 
   tag:
     runs-on: ubuntu-latest
     needs: build
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
 
     steps:
       - name: Checkout repository
@@ -59,7 +70,7 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Output version
-        run: echo "Generated version: ${{ steps.version.outputs.version }}"
+        run: 'echo "Generated version: ${{ steps.version.outputs.version }}"'
 
 
   push-image:
