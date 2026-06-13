@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FOB Uptime Monitor – Settings</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <aside class="sidebar">
+    <h2>FOB Uptime Monitor</h2>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="admin.html">Admin</a>
+      <a href="logs.html">Logs</a>
+      <a class="active" href="settings.html">Settings</a>
+    </nav>
+    <div class="theme-toggle">
+      <label>
+        <input type="checkbox" id="themeSwitch">
+        Dark mode
+      </label>
+    </div>
+  </aside>
+
+  <main class="content">
+    <h1>Settings</h1>
+
+    <!-- AUTO REFRESH SECTION -->
+    <section>
+      <h2>Auto Refresh Interval</h2>
+      <p>Current interval (seconds): <span id="currentInterval"></span></p>
+      <input id="intervalInput" type="number" min="10" step="10" placeholder="120">
+      <button id="saveIntervalBtn">Save Interval</button>
+      <p class="hint">Dashboard uses this value for auto‑refresh.</p>
+    </section>
+
+    <hr>
+
+    <!-- EMAIL SETTINGS SECTION -->
+    <section>
+      <h2>Email Settings</h2>
+
+      <label>SMTP Host</label>
+      <input id="smtpHost" type="text" placeholder="smtp.office365.com">
+
+      <label>SMTP Port</label>
+      <input id="smtpPort" type="number" placeholder="587">
+
+      <label>SMTP User</label>
+      <input id="smtpUser" type="text" placeholder="alerts@yourdomain.com">
+
+      <label>SMTP Password</label>
+      <input id="smtpPass" type="password" placeholder="App password">
+
+      <label>From Email</label>
+      <input id="fromEmail" type="text" placeholder="alerts@yourdomain.com">
+
+      <label>To Email</label>
+      <input id="toEmail" type="text" placeholder="you@yourdomain.com">
+
+      <button id="saveEmailBtn">Save Email Settings</button>
+
+      <p id="emailStatus" class="hint"></p>
+    </section>
+  </main>
+
+<script>
+// ----------------------
+// THEME SWITCH
+// ----------------------
+const themeSwitch = document.getElementById("themeSwitch");
+const savedTheme = localStorage.getItem("fob-theme");
+if (savedTheme === "dark") {
+  document.body.classList.add("dark");
+  themeSwitch.checked = true;
+}
+themeSwitch.addEventListener("change", () => {
+  document.body.classList.toggle("dark", themeSwitch.checked);
+  localStorage.setItem("fob-theme", themeSwitch.checked ? "dark" : "light");
+});
+
+// ----------------------
+// AUTO REFRESH INTERVAL
+// ----------------------
+const currentIntervalSpan = document.getElementById("currentInterval");
+const intervalInput = document.getElementById("intervalInput");
+const savedInterval = localStorage.getItem("fob-refresh-interval") || "120";
+currentIntervalSpan.textContent = savedInterval;
+intervalInput.value = savedInterval;
+
+document.getElementById("saveIntervalBtn").addEventListener("click", () => {
+  const val = parseInt(intervalInput.value, 10);
+  if (isNaN(val) || val < 10) {
+    alert("Please enter a valid number (>= 10)");
+    return;
+  }
+  localStorage.setItem("fob-refresh-interval", String(val));
+  currentIntervalSpan.textContent = val;
+  alert("Refresh interval saved. Dashboard will use this next reload.");
+});
+
+// ----------------------
+// EMAIL SETTINGS
+// ----------------------
+async function loadEmailSettings() {
+  const res = await fetch("/api/settings/email");
+  if (!res.ok) return;
+  const data = await res.json();
+
+  smtpHost.value = data.smtpHost || "";
+  smtpPort.value = data.smtpPort || "";
+  smtpUser.value = data.smtpUser || "";
+  smtpPass.value = data.smtpPass || "";
+  fromEmail.value = data.fromEmail || "";
+  toEmail.value = data.toEmail || "";
+}
+
+document.getElementById("saveEmailBtn").addEventListener("click", async () => {
+  const payload = {
+    smtpHost: smtpHost.value,
+    smtpPort: parseInt(smtpPort.value, 10),
+    smtpUser: smtpUser.value,
+    smtpPass: smtpPass.value,
+    fromEmail: fromEmail.value,
+    toEmail: toEmail.value
+  };
+
+  const res = await fetch("/api/settings/email", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  document.getElementById("emailStatus").textContent = await res.text();
+});
+
+// Load settings on page load
+loadEmailSettings();
+</script>
+
+</body>
+</html>
