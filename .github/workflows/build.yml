@@ -88,14 +88,12 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push Docker image
-        shell: bash
-        run: |
-          VERSION=${{ needs.tag.outputs.version }}
-          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/ssl-monitor
-
-          echo "Building Docker image: $IMAGE_NAME:$VERSION"
-
-          docker buildx build --platform linux/amd64 \
-            -t $IMAGE_NAME:latest \
-            -t $IMAGE_NAME:$VERSION \
-            --push .
+        uses: docker/build-push-action@v6
+        with:
+          context: .                # ✅ Dockerfile is in project root
+          file: ./Dockerfile        # ✅ Explicitly point to Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/ssl-monitor:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/ssl-monitor:${{ needs.tag.outputs.version }}
