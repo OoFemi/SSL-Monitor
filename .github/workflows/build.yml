@@ -90,8 +90,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: .                # ✅ Dockerfile is in project root
-          file: ./Dockerfile        # ✅ Explicitly point to Dockerfile
+          context: .                # Dockerfile is in project root
+          file: ./Dockerfile        # Explicitly point to Dockerfile
           platforms: linux/amd64
           push: true
           tags: |
