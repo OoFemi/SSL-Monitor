@@ -87,13 +87,21 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Define image name
+        id: image
+        run: |
+          # Fallback to 'oofemi' if secret is missing
+          USERNAME="${{ secrets.DOCKERHUB_USERNAME || 'oofemi' }}"
+          IMAGE_NAME="$USERNAME/ssl-monitor"
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: .                # Dockerfile is in project root
-          file: ./Dockerfile        # Explicitly point to Dockerfile
+          context: .
+          file: ./Dockerfile
           platforms: linux/amd64
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/ssl-monitor:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/ssl-monitor:${{ needs.tag.outputs.version }}
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ needs.tag.outputs.version }}
