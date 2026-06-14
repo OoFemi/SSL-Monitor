@@ -88,13 +88,14 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Define image name
+        shell: bash
         run: |
           USERNAME="${{ secrets.DOCKERHUB_USERNAME }}"
           if [ -z "$USERNAME" ]; then
             USERNAME="oofemi"  # fallback username
           fi
           IMAGE_NAME="${USERNAME}/ssl-monitor"
-          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+          echo "IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
