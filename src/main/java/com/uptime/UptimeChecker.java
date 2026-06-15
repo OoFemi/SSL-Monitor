@@ -1,6 +1,8 @@
 package com.uptime;
 
 import javax.net.ssl.HttpsURLConnection;
+import java.net.URI;
+import java.net.URL;
 import java.net.HttpURLConnection;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
@@ -16,7 +18,10 @@ public class UptimeChecker {
         try {
             long start = System.currentTimeMillis();
 
-            java.net.URL urlObj = new java.net.URL(u.getUrl());
+            // SAFELY PARSE URL (no deprecated constructor)
+            URI uri = URI.create(u.getUrl().trim());
+            URL urlObj = uri.toURL();
+
             HttpURLConnection conn = (HttpURLConnection) urlObj.openConnection();
             conn.setConnectTimeout(8000);
             conn.setReadTimeout(8000);
@@ -28,18 +33,30 @@ public class UptimeChecker {
 
             int sslDays = 0;
 
-            // SSL CHECK
-            if (u.getUrl().startsWith("https")) {
+            // -------------------------
+            // SSL CHECK (HTTPS ONLY)
+            // -------------------------
+            if (u.getUrl().toLowerCase().startsWith("https")) {
                 try {
-                    HttpsURLConnection https = (HttpsURLConnection) conn;
+                    HttpsURLConnection https = (HttpsURLConnection) urlObj.openConnection();
+                    https.setConnectTimeout(8000);
+                    https.setReadTimeout(8000);
                     https.connect();
-                    X509Certificate cert = (X509Certificate) https.getServerCertificates()[0];
+
+                    X509Certificate cert =
+                            (X509Certificate) https.getServerCertificates()[0];
+
                     Instant expiry = cert.getNotAfter().toInstant();
                     sslDays = (int) Duration.between(Instant.now(), expiry).toDays();
-                } catch (Exception ignored) {}
+
+                } catch (Exception ignored) {
+                    sslDays = 0;
+                }
             }
 
+            // -------------------------
             // UPDATE OBJECT
+            // -------------------------
             u.setUp(isUp);
             u.setResponseTime((int) responseTime);
             u.setSslDays(sslDays);
@@ -51,30 +68,20 @@ public class UptimeChecker {
             // ALERT LOGIC
             // -------------------------
 
-            // DOWN ALERT
-            if (previousUp && !isUp) {
+            if (previousUp && !isUp)
                 alerts.sendDownAlert(u.getUrl());
-            }
 
-            // RECOVERY ALERT
-            if (!previousUp && isUp) {
+            if (!previousUp && isUp)
                 alerts.sendRecoveryAlert(u.getUrl());
-            }
 
-            // SSL EXPIRED
-            if (sslDays <= 0 && previousSslDays > 0) {
+            if (sslDays <= 0 && previousSslDays > 0)
                 alerts.sendSSLAlert(u.getUrl(), sslDays);
-            }
 
-            // SSL RESTORED
-            if (sslDays > 0 && previousSslDays <= 0) {
+            if (sslDays > 0 && previousSslDays <= 0)
                 alerts.sendEmail("SSL RESTORED", u.getUrl());
-            }
 
-            // SLOW RESPONSE ALERT (>2000ms)
-            if (isUp && responseTime > 2000) {
+            if (isUp && responseTime > 2000)
                 alerts.sendSlowAlert(u.getUrl(), responseTime);
-            }
 
         } catch (Exception e) {
 
@@ -84,9 +91,8 @@ public class UptimeChecker {
             u.setLastChecked(System.currentTimeMillis());
             db.updateUrl(u.getId(), u);
 
-            if (previousUp) {
+            if (previousUp)
                 alerts.sendDownAlert(u.getUrl());
-            }
         }
     }
 }
