@@ -73,6 +73,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build, tag]
     if: github.ref == 'refs/heads/main'
+    env:
+      # Evaluates the secret, fallback to 'oofemi' if empty, then appends the repo name
+      IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME || 'oofemi' }}/ssl-monitor
 
     steps:
       - name: Checkout repository
@@ -86,16 +89,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Define image name
-        shell: bash
-        run: |
-          USERNAME="${{ secrets.DOCKERHUB_USERNAME }}"
-          if [ -z "$USERNAME" ]; then
-            USERNAME="oofemi"  # fallback username
-          fi
-          IMAGE_NAME="${USERNAME}/ssl-monitor"
-          echo "IMAGE_NAME=${IMAGE_NAME}" >> "$GITHUB_ENV"
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
