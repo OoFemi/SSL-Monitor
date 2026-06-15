@@ -74,8 +74,7 @@ jobs:
     needs: [build, tag]
     if: github.ref == 'refs/heads/main'
     env:
-      # Evaluates the secret, fallback to 'oofemi' if empty, then appends the repo name
-      IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME || 'oofemi' }}/ssl-monitor
+      IMAGE_NAME: oofemi/ssl-monitor
 
     steps:
       - name: Checkout repository
