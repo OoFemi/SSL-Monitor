@@ -1,6 +1,8 @@
 package com.uptime;
 
 import javax.net.ssl.HttpsURLConnection;
+import java.net.URI;
+import java.net.URL;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.time.Instant;
@@ -17,10 +19,11 @@ public class SSLChecker {
                 return;
             }
 
-            // Fully-qualified URL class to avoid conflicts
-            java.net.URL urlObj = new java.net.URL(u.getUrl().trim());
-            HttpsURLConnection https = (HttpsURLConnection) urlObj.openConnection();
+            // Parse safely using URI (avoids deprecated URL(String))
+            URI uri = URI.create(u.getUrl().trim());
+            URL urlObj = uri.toURL();
 
+            HttpsURLConnection https = (HttpsURLConnection) urlObj.openConnection();
             https.setConnectTimeout(8000);
             https.setReadTimeout(8000);
             https.setRequestProperty("User-Agent",
@@ -35,7 +38,8 @@ public class SSLChecker {
             Instant expiry = cert.getNotAfter().toInstant();
             sslDays = (int) Duration.between(Instant.now(), expiry).toDays();
 
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            // Any failure = treat as 0 days
             sslDays = 0;
         }
 
