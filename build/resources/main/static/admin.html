@@ -1,136 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>FOB Uptime Monitor – Admin</title>
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <title>FOB Uptime Monitor — Admin Command Center</title>
+  <link rel="stylesheet" href="admin.css" />
 </head>
-
 <body>
-  <aside class="sidebar">
-    <h2>FOB Uptime Monitor</h2>
+  <div class="sidebar">
+    <h2>FOB ENTERPRISE</h2>
+    <p>GLOBAL OPS V4.2</p>
     <nav>
       <a href="dashboard.html">Dashboard</a>
-      <a class="active" href="admin.html">Admin</a>
+      <a href="admin.html" class="active">Admin</a>
       <a href="logs.html">Logs</a>
       <a href="settings.html">Settings</a>
     </nav>
-  </aside>
+    <div class="dark-toggle">
+      <label>Dark Mode</label>
+      <input type="checkbox" id="darkMode" checked />
+    </div>
+  </div>
 
-  <main class="content">
-    <h1>Manage URLs</h1>
+  <main>
+    <h2>Manage Monitored URLs</h2>
+    <p class="subtitle">Infrastructure Configuration & Provisioning</p>
 
     <section class="add-section">
-      <h2>Add New URL</h2>
+      <h3>Add New Target Endpoint</h3>
+      <form id="addForm">
+        <label>Target URL</label>
+        <input type="text" id="url" placeholder="https://example.com" required />
 
-      <label>URL</label>
-      <input id="urlInput" type="text" placeholder="https://example.com">
+        <label>Category</label>
+        <input type="text" id="category" placeholder="Production" required />
 
-      <label>Category</label>
-      <input id="categoryInput" type="text" placeholder="Production">
+        <label>Tags (comma separated)</label>
+        <input type="text" id="tags" placeholder="Frontend,API" />
 
-      <label>Tags (comma separated)</label>
-      <input id="tagsInput" type="text" placeholder="api,frontend">
-
-      <button id="addBtn">Add URL</button>
+        <button type="submit" id="addBtn">+ Add URL Target</button>
+      </form>
     </section>
 
-    <section class="list-section">
-      <h2>Monitored URLs</h2>
-
-      <table id="adminTable">
+    <section class="registry">
+      <h3>Active Monitored URLs Registry</h3>
+      <table id="urlTable">
         <thead>
           <tr>
             <th>URL</th>
             <th>Category</th>
             <th>Tags</th>
             <th>Status</th>
-            <th>SSL Days</th>
+            <th>SSL Days</th>
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody id="adminTableBody"></tbody>
+        <tbody></tbody>
       </table>
     </section>
   </main>
 
-<script>
-const API_BASE = window.location.origin;
-
-// LOAD EXISTING URLS
-async function loadAdminUrls() {
-  const res = await fetch(`${API_BASE}/api/urls`);
-  const data = await res.json();
-
-  const tbody = document.getElementById("adminTableBody");
-  tbody.innerHTML = "";
-
-  data.forEach(row => {
-    const tags = Array.isArray(row.tags) ? row.tags.join(", ") : "";
-
-    tbody.innerHTML += `
-      <tr>
-        <td>${row.url}</td>
-        <td>${row.category || ""}</td>
-        <td>${tags}</td>
-        <td>${row.isUp ? "UP" : "DOWN"}</td>
-        <td>${row.sslDays}</td>
-        <td>
-          <button onclick="deleteUrl(${row.id})">Delete</button>
-        </td>
-      </tr>
-    `;
-  });
-}
-
-// DELETE URL
-async function deleteUrl(id) {
-  await fetch(`${API_BASE}/api/admin/delete-url/${id}`, { method: "DELETE" });
-  loadAdminUrls();
-}
-
-// ADD URL
-document.getElementById("addBtn").addEventListener("click", async () => {
-  const url = document.getElementById("urlInput").value.trim();
-  const category = document.getElementById("categoryInput").value.trim();
-  const tagsRaw = document.getElementById("tagsInput").value.trim();
-
-  if (!url) {
-    alert("Please enter a valid URL");
-    return;
-  }
-
-  const payload = {
-    url,
-    category,
-    tags: tagsRaw ? tagsRaw.split(",").map(t => t.trim()) : [],
-    isUp: false,
-    responseTime: 0,
-    sslDays: 0,
-    lastChecked: Date.now(),
-    historyResponseTimes: []
-  };
-
-  const res = await fetch(`${API_BASE}/api/admin/add-url`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-
-  if (res.ok) {
-    alert("URL added successfully!");
-    document.getElementById("urlInput").value = "";
-    document.getElementById("categoryInput").value = "";
-    document.getElementById("tagsInput").value = "";
-    loadAdminUrls();
-  } else {
-    const text = await res.text();
-    alert("Failed to add URL: " + text);
-  }
-});
-
-loadAdminUrls();
-</script>
-
+  <script src="admin.js"></script>
 </body>
 </html>

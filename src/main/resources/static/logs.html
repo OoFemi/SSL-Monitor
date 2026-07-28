@@ -1,103 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>FOB Uptime Monitor – Logs</title>
-<link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FOB Uptime Monitor – Logs</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-  <aside class="sidebar">
-    <h2>FOB Uptime Monitor</h2>
-    <nav>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="admin.html">Admin</a>
-      <a class="active" href="logs.html">Logs</a>
-      <a href="settings.html">Settings</a>
-    </nav>
-    <div class="theme-toggle">
-      <label>
-        <input type="checkbox" id="themeSwitch">
-        Dark mode
-      </label>
+    <div class="sidebar">
+        <h2>FOB Uptime Monitor</h2>
+        <ul>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="admin.html">Admin</a></li>
+            <li><a href="logs.html" class="active">Logs</a></li>
+            <li><a href="settings.html">Settings</a></li>
+        </ul>
+        <div class="darkModeToggle">
+            <input type="checkbox" id="darkModeCheckbox">
+            <label for="darkModeCheckbox">Dark mode</label>
+        </div>
     </div>
-  </aside>
 
-  <main class="content">
-    <header>
-      <h1>Event Logs</h1>
-      <p>Recent checks, alerts, and status changes.</p>
-    </header>
+    <div class="main-content">
+        <h1>System Audit Logs</h1>
+        <p class="subtitle">Real-time enterprise event trail</p>
 
-    <table id="logsTable">
-      <thead>
-        <tr>
-          <th>Time</th>
-          <th>URL</th>
-          <th>Level</th>
-          <th>Message</th>
-        </tr>
-      </thead>
-      <tbody id="logsTableBody"></tbody>
-    </table>
+        <div class="actions-bar" style="margin-bottom: 20px;">
+            <button id="refreshLogsBtn" class="btn primary">Refresh Logs</button>
+            <button id="clearLogsBtn" class="btn secondary">Clear View</button>
+        </div>
 
-    <footer>
-      <span id="logsUpdated">Last updated: —</span>
-      <button id="logsRefreshBtn">Refresh</button>
-    </footer>
-  </main>
+        <table class="uptime-table">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Target URL</th>
+                    <th>Level</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody id="logsTableBody">
+                <!-- Dynamically populated via JavaScript -->
+            </tbody>
+        </table>
+    </div>
 
-<script>
-const API_BASE = window.location.origin;
+    <script>
+        async function fetchLogsData() {
+            try {
+                const response = await fetch('/api/logs');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const logs = await response.json();
 
-// dark mode
-const themeSwitch = document.getElementById("themeSwitch");
-const savedTheme = localStorage.getItem("fob-theme");
-if (savedTheme === "dark") {
-  document.body.classList.add("dark");
-  themeSwitch.checked = true;
-}
-themeSwitch.addEventListener("change", () => {
-  if (themeSwitch.checked) {
-    document.body.classList.add("dark");
-    localStorage.setItem("fob-theme", "dark");
-  } else {
-    document.body.classList.remove("dark");
-    localStorage.setItem("fob-theme", "light");
-  }
-});
+                const tbody = document.getElementById('logsTableBody');
+                tbody.innerHTML = '';
 
-function formatTime(ts) {
-  if (!ts) return "—";
-  const d = new Date(ts);
-  return d.toLocaleString();
-}
+                if (logs && logs.length > 0) {
+                    // Reverse to show latest logs at the top
+                    logs.slice().reverse().forEach(log => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${new Date(log.time).toLocaleTimeString()}</td>
+                            <td>${log.url || '—'}</td>
+                            <td><span class="badge ${log.level.toLowerCase()}">${log.level}</span></td>
+                            <td>${log.message}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center;">No event logs recorded yet.</td></tr>`;
+                }
+            } catch (error) {
+                console.error('Failed to fetch logs:', error);
+            }
+        }
 
-function loadLogs() {
-  fetch(`${API_BASE}/api/logs`)
-    .then(res => res.json())
-    .then(data => {
-      const tbody = document.getElementById("logsTableBody");
-      tbody.innerHTML = "";
-      data.forEach(log => {
-        tbody.innerHTML += `
-          <tr>
-            <td>${formatTime(log.timestamp)}</td>
-            <td>${log.url || ""}</td>
-            <td>${log.level || ""}</td>
-            <td>${log.message || ""}</td>
-          </tr>`;
-      });
-      document.getElementById("logsUpdated").innerText =
-        "Last updated: " + new Date().toLocaleTimeString();
-    })
-    .catch(err => console.error("Logs error:", err));
-}
+        // Initial fetch on page load
+        fetchLogsData();
 
-document.getElementById("logsRefreshBtn").addEventListener("click", loadLogs);
+        // Auto-refresh every 30 seconds
+        setInterval(fetchLogsData, 30000);
 
-loadLogs();
-</script>
+        // Manual refresh button handler
+        document.getElementById('refreshLogsBtn').addEventListener('click', fetchLogsData);
 
+        document.getElementById('clearLogsBtn').addEventListener('click', () => {
+            document.getElementById('logsTableBody').innerHTML = `<tr><td colspan="4" style="text-align: center;">Logs view cleared locally.</td></tr>`;
+        });
+    </script>
 </body>
 </html>

@@ -1,54 +1,76 @@
-document.addEventListener("DOMContentLoaded", loadUrls);
+const API_BASE = "http://192.168.2.41:8080/api/status";
 
-function loadUrls() {
-  fetch("/api/admin/urls")
-    .then(res => {
-      if (res.status === 401) {
-        window.location.href = "/login.html";
-        return;
-      }
-      return res.json();
-    })
-    .then(data => {
-      const tbody = document.querySelector("#urlTable tbody");
-      tbody.innerHTML = "";
+document.addEventListener("DOMContentLoaded", () => {
+  loadUrls();
 
-      data.items.forEach(u => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${u.id}</td>
-          <td>${u.url}</td>
-          <td>${u.category || ""}</td>
-          <td>${(u.tags || []).join(", ")}</td>
-          <td>
-            <button onclick="deleteUrl(${u.id})">Delete</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
+  const form = document.getElementById("addForm");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const url = document.getElementById("url").value.trim();
+    const category = document.getElementById("category").value.trim();
+    const tags = document.getElementById("tags").value.trim();
+
+    try {
+      const response = await fetch(`${API_BASE}/add`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url, category, tags })
       });
-    });
-}
 
-document.querySelector("#addForm").addEventListener("submit", e => {
-  e.preventDefault();
+      if (!response.ok) throw new Error("Network error occurred while adding URL.");
 
-  const url = document.querySelector("#url").value;
-  const category = document.querySelector("#category").value;
-  const tags = document.querySelector("#tags").value.split(",").map(t => t.trim());
-
-  fetch("/api/admin/urls", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url, category, tags })
-  }).then(() => loadUrls());
+      alert("✅ URL added successfully!");
+      form.reset();
+      loadUrls();
+    } catch (err) {
+      alert(err.message);
+    }
+  });
 });
 
-function deleteUrl(id) {
-  fetch(`/api/admin/urls/${id}`, { method: "DELETE" })
-    .then(() => loadUrls());
+async function loadUrls() {
+  try {
+    const response = await fetch(`${API_BASE}/list`);
+    if (!response.ok) throw new Error("Failed to load URLs.");
+
+    const urls = await response.json();
+    const tbody = document.querySelector("#urlTable tbody");
+    tbody.innerHTML = "";
+
+    urls.forEach((u) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${u.url}</td>
+        <td>${u.category}</td>
+        <td>${u.tags || "-"}</td>
+        <td>${u.up ? "UP" : "DOWN"}</td>
+        <td>${u.sslDays || "-"}</td>
+        <td><button class="remove-btn" onclick="removeUrl('${u.url}')">Remove</button></td>
+      `;
+      tbody.appendChild(row);
+    });
+  } catch (err) {
+    console.error(err);
+  }
 }
 
-function logout() {
-  fetch("/api/logout", { method: "POST" })
-    .then(() => window.location.href = "/login.html");
+async function removeUrl(url) {
+  if (!confirm(`Remove ${url}?`)) return;
+
+  try {
+    const response = await fetch(`${API_BASE}/delete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url })
+    });
+
+    if (!response.ok) throw new Error("Failed to remove URL.");
+
+    alert("🗑️ URL removed successfully!");
+    loadUrls();
+  } catch (err) {
+    alert(err.message);
+  }
 }
+

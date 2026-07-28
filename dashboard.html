@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FOB Uptime Monitor – Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="chart.js"></script>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>FOB Uptime Monitor</h2>
+        <ul>
+            <li><a href="dashboard.html" class="active">Dashboard</a></li>
+            <li><a href="admin.html">Admin</a></li>
+            <li><a href="logs.html">Logs</a></li>
+            <li><a href="settings.html">Settings</a></li>
+        </ul>
+        <div class="darkModeToggle">
+            <input type="checkbox" id="darkModeCheckbox">
+            <label for="darkModeCheckbox">Dark mode</label>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <h1>Real-time Website Health</h1>
+        <p class="subtitle">Auto-refresh every 2 minutes</p>
+
+        <div class="metrics-grid">
+            <div class="card green">
+                <h3>UP</h3>
+                <p id="upCount">0</p>
+            </div>
+            <div class="card red">
+                <h3>DOWN</h3>
+                <p id="downCount">0</p>
+            </div>
+            <div class="card blue">
+                <h3>AVG RESPONSE</h3>
+                <p id="avgResponse">0 ms</p>
+            </div>
+            <div class="card purple">
+                <h3>SSL EXPIRY</h3>
+                <p id="sslDays">0 Days Left</p>
+            </div>
+        </div>
+
+        <table class="uptime-table">
+            <thead>
+                <tr>
+                    <th>Target URL</th>
+                    <th>Category / Tags</th>
+                    <th>Status</th>
+                    <th>Last Check</th>
+                    <th>Avg. Response Time</th>
+                    <th>SSL Days Left</th>
+                    <th>Trend</th>
+                </tr>
+            </thead>
+            <tbody id="urlTableBody">
+                <!-- Dynamically populated via JavaScript -->
+            </tbody>
+        </table>
+
+        <div class="actions-bar">
+            <span id="lastUpdated">Last updated: —</span>
+            <div>
+                <button id="refreshBtn" class="btn primary">Refresh</button>
+                <button id="exportCsvBtn" class="btn secondary">Export CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchDashboardData() {
+            try {
+                // Using a clean relative path to avoid port or IP mismatch issues
+                const response = const response = await fetch('http://192.168.2.41:7000/urls');
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+
+                // Update summary metrics
+                document.getElementById('upCount').textContent = data.upCount || 0;
+                document.getElementById('downCount').textContent = data.downCount || 0;
+                document.getElementById('avgResponse').textContent = data.avgResponse || '0 ms';
+                document.getElementById('sslDays').textContent = (data.sslDays !== undefined ? data.sslDays : 0) + ' Days Left';
+
+                // Populate table rows
+                const tbody = document.getElementById('urlTableBody');
+                tbody.innerHTML = '';
+
+                if (data.items && data.items.length > 0) {
+                    data.items.forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${item.url}</td>
+                            <td>${item.category}</td>
+                            <td><span class="badge ${item.status.toLowerCase()}">${item.status}</span></td>
+                            <td>${new Date(item.lastCheck).toLocaleTimeString()}</td>
+                            <td>${item.avgResponseTime}</td>
+                            <td>${item.sslDaysLeft} days</td>
+                            <td>${item.trend}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+            } catch (error) {
+                console.error('Failed to fetch dashboard data:', error);
+            }
+        }
+
+        // Initial fetch on page load
+        fetchDashboardData();
+
+        // Auto-refresh every 2 minutes
+        setInterval(fetchDashboardData, 120000);
+
+        // Manual refresh button handler
+        document.getElementById('refreshBtn').addEventListener('click', fetchDashboardData);
+    </script>
+</body>
+</html>

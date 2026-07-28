@@ -1,48 +1,25 @@
 package com.uptime;
 
+import org.springframework.stereotype.Component;
 import javax.net.ssl.HttpsURLConnection;
-import java.net.URI;
 import java.net.URL;
 import java.security.cert.X509Certificate;
-import java.time.Duration;
-import java.time.Instant;
+import java.util.concurrent.TimeUnit;
 
+@Component
 public class SSLChecker {
 
-    public static void check(MonitoredUrl u) {
-        int sslDays = 0;
-
+    public int getDaysRemaining(String urlString) {
         try {
-            // Only HTTPS has SSL
-            if (!u.getUrl().toLowerCase().startsWith("https")) {
-                u.setSslDays(0);
-                return;
-            }
-
-            // Parse safely using URI (avoids deprecated URL(String))
-            URI uri = URI.create(u.getUrl().trim());
-            URL urlObj = uri.toURL();
-
-            HttpsURLConnection https = (HttpsURLConnection) urlObj.openConnection();
-            https.setConnectTimeout(8000);
-            https.setReadTimeout(8000);
-            https.setRequestProperty("User-Agent",
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-
-            https.connect();
-
-            // Extract certificate
-            X509Certificate cert =
-                    (X509Certificate) https.getServerCertificates()[0];
-
-            Instant expiry = cert.getNotAfter().toInstant();
-            sslDays = (int) Duration.between(Instant.now(), expiry).toDays();
-
+            URL url = new URL(urlString);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.connect();
+            X509Certificate cert = (X509Certificate) conn.getServerCertificates()[0];
+            long diff = cert.getNotAfter().getTime() - System.currentTimeMillis();
+            return (int) TimeUnit.MILLISECONDS.toDays(diff);
         } catch (Exception e) {
-            // Any failure = treat as 0 days
-            sslDays = 0;
+            return 0;
         }
-
-        u.setSslDays(Math.max(sslDays, 0));
     }
 }
+
