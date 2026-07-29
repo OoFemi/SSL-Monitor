@@ -18,9 +18,12 @@ dependencies {
     // Pure Javalin 6 (includes its exact matching Jetty dependencies without version clashes)
     implementation 'io.javalin:javalin:6.1.3'
     implementation 'org.slf4j:slf4j-simple:2.0.12'
-    
+
     // SQLite JDBC Driver
     implementation 'org.xerial:sqlite-jdbc:3.45.3.0'
+
+    // JSON Object Mapper (Required for Javalin ctx.json() serialization)
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
 }
 
 java {
