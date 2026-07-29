@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>FOB SSL Monitor — Settings & Alert Rules</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { blue: '#0066ff' },
+                        slate: { 850: '#151f32', 900: '#0f172a', 950: '#020617' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased flex h-screen overflow-hidden">
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between hidden md:flex">
+        <div>
+            <div class="h-16 flex items-center px-6 border-b border-slate-800 space-x-3">
+                <div class="w-8 h-8 rounded bg-brand-blue flex items-center justify-center font-bold text-white">F</div>
+                <div>
+                    <span class="font-bold tracking-wide text-sm block">FOB SSL Monitor</span>
+                    <span class="text-[10px] text-brand-blue font-mono uppercase tracking-widest">v1.0.2 Enterprise</span>
+                </div>
+            </div>
+            <nav class="p-4 space-y-1">
+                <a href="dashboard.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 transition text-sm"><i class="fa-solid fa-chart-line w-5"></i><span>Dashboard</span></a>
+                <a href="admin.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 transition text-sm"><i class="fa-solid fa-shield-halved w-5"></i><span>Admin</span></a>
+                <a href="logs.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 transition text-sm"><i class="fa-solid fa-terminal w-5"></i><span>Logs</span></a>
+                <a href="settings.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg bg-brand-blue/10 text-brand-blue font-medium text-sm border border-brand-blue/20"><i class="fa-solid fa-gear w-5"></i><span>Settings</span></a>
+            </nav>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center px-6">
+            <h1 class="text-lg font-semibold text-slate-100">Notification & SSL Alert Schedules</h1>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-6 space-y-6 max-w-4xl">
+            <!-- Alert Threshold Config Requirement #11 & #12 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+                <h2 class="text-sm font-semibold text-slate-200">SSL Certificate Expiration Alert Triggers</h2>
+                <p class="text-xs text-slate-400">Automated dispatch rules for SSL expiration schedules.</p>
+
+                <div class="space-y-3 pt-2">
+                    <label class="flex items-center space-x-3 text-xs text-slate-300">
+                        <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue">
+                        <span>Send Alert 14 Days before expiration</span>
+                    </label>
+                    <label class="flex items-center space-x-3 text-xs text-slate-300">
+                        <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue">
+                        <span>Send Alert 7 Days before expiration</span>
+                    </label>
+                    <label class="flex items-center space-x-3 text-xs text-slate-300">
+                        <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue">
+                        <span>Send Alert 3 Days before expiration</span>
+                    </label>
+                    <label class="flex items-center space-x-3 text-xs text-slate-300">
+                        <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue">
+                        <span>Send Alert 2 Days before expiration</span>
+                    </label>
+                    <label class="flex items-center space-x-3 text-xs text-slate-300">
+                        <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue">
+                        <span>Send Critical Alert 6 Hours before expiration</span>
+                    </label>
+                    <label class="flex items-center space-x-3 text-xs text-emerald-400 font-semibold pt-2">
+                        <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-emerald-500">
+                        <span>Send Alert after SSL Certificate has been successfully RENEWED</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Webhook Integrations -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+                <h2 class="text-sm font-semibold text-slate-200">Notification Webhooks (Slack / Teams / Email)</h2>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Slack Incoming Webhook URL</label>
+                    <input type="url" placeholder="https://hooks.slack.com/services/..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Alert Email Recipient</label>
+                    <input type="email" placeholder="noc-alerts@fiberone.ng" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono">
+                </div>
+                <button class="bg-brand-blue text-white px-4 py-2 rounded-lg text-xs font-semibold">Save Settings</button>
+            </div>
+        </main>
+
+        <footer class="h-10 bg-slate-900 border-t border-slate-800 flex items-center justify-center px-6 text-xs text-slate-500 font-mono">
+            FOB SSL Monitor  v1.0.2
+        </footer>
+    </div>
+</body>
+</html>

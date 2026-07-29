@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FOB SSL Monitor — Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { blue: '#0066ff', red: '#ff3333', hoverBlue: '#0052cc', hoverRed: '#e60000' },
+                        slate: { 850: '#151f32', 900: '#0f172a', 950: '#020617' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased flex h-screen overflow-hidden">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between hidden md:flex">
+        <div>
+            <div class="h-16 flex items-center px-6 border-b border-slate-800 space-x-3">
+                <div class="w-8 h-8 rounded bg-brand-blue flex items-center justify-center font-bold text-white shadow-lg shadow-brand-blue/30">F</div>
+                <div>
+                    <span class="font-bold tracking-wide text-sm block">FOB SSL Monitor</span>
+                    <span class="text-[10px] text-brand-blue font-mono uppercase tracking-widest">v1.0.2 Enterprise</span>
+                </div>
+            </div>
+
+            <nav class="p-4 space-y-1">
+                <a href="dashboard.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                    <i class="fa-solid fa-chart-line w-5"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="admin.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg bg-brand-blue/10 text-brand-blue font-medium text-sm border border-brand-blue/20">
+                    <i class="fa-solid fa-shield-halved w-5"></i>
+                    <span>Admin</span>
+                </a>
+                <a href="logs.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                    <i class="fa-solid fa-terminal w-5"></i>
+                    <span>Logs</span>
+                </a>
+                <a href="settings.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                    <i class="fa-solid fa-gear w-5"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-800">
+            <div class="flex items-center justify-between px-3 py-2.5 rounded-lg bg-slate-950/50 border border-slate-800/80">
+                <div class="flex items-center space-x-3">
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span class="text-xs font-medium text-slate-300">Dark Mode</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="themeSwitch" class="sr-only peer" checked>
+                    <div class="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand-blue"></div>
+                </label>
+            </div>
+        </div>
+    </aside>
+
+    <!-- AUTH GATE OVERLAY -->
+    <div id="authOverlay" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 max-w-sm w-full shadow-2xl space-y-6">
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 rounded-xl bg-brand-blue/10 border border-brand-blue/20 text-brand-blue flex items-center justify-center mx-auto text-lg">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h2 class="text-lg font-bold text-slate-100">Admin Authentication</h2>
+                <p class="text-xs text-slate-400">Secure access to endpoint management & SSL provider configuration.</p>
+            </div>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Username</label>
+                    <input id="loginUser" type="text" required placeholder="admin" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-brand-blue">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Password</label>
+                    <input id="loginPass" type="password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-brand-blue">
+                </div>
+                <p id="loginError" class="text-xs text-brand-red hidden"></p>
+                <button type="submit" class="w-full bg-brand-blue hover:bg-brand-hoverBlue text-white py-2.5 rounded-lg text-xs font-semibold transition shadow-lg shadow-brand-blue/25">Authenticate Session</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        
+        <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 z-10">
+            <div class="flex items-center space-x-4">
+                <h1 class="text-lg font-semibold text-slate-100">Admin Management Portal</h1>
+                <span class="text-xs text-slate-400 hidden sm:inline">Provision URLs and Manage SSL Renewal Provider Links</span>
+            </div>
+
+            <button id="logoutBtn" class="bg-brand-red/10 hover:bg-brand-red/20 text-brand-red border border-brand-red/20 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-2">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Lock Session</span>
+            </button>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-6 space-y-6">
+            
+            <!-- FORM 1: TARGET URL MANAGEMENT (#3, #7) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl max-w-5xl">
+                <div class="border-b border-slate-800 pb-4 mb-4 flex justify-between items-center">
+                    <div>
+                        <h2 id="urlFormTitle" class="text-sm font-semibold text-slate-200">Add / Edit Target Endpoint</h2>
+                        <p class="text-xs text-slate-400">Configure monitored web services, categories (Production/Test), and tags (API/Frontend).</p>
+                    </div>
+                    <button id="cancelUrlEditBtn" class="hidden text-xs text-brand-red hover:underline">Cancel Edit</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-medium text-slate-300">Target URL</label>
+                        <input id="urlInput" type="url" placeholder="https://api.fiberone.ng" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 font-mono focus:outline-none focus:border-brand-blue">
+                    </div>
+
+                    <!-- Category Requirement #7 -->
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-medium text-slate-300">Category</label>
+                        <select id="categoryInput" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-brand-blue">
+                            <option value="Production">Production</option>
+                            <option value="Test">Test</option>
+                            <option value="Staging">Staging</option>
+                        </select>
+                    </div>
+
+                    <!-- Tag Requirement #7 -->
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-medium text-slate-300">Tag</label>
+                        <select id="tagInput" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-brand-blue">
+                            <option value="API">API</option>
+                            <option value="Frontend">Frontend</option>
+                            <option value="Auth/OAuth">Auth/OAuth</option>
+                            <option value="Database">Database</option>
+                        </select>
+                    </div>
+
+                    <!-- Custom Renewal Link override (#16) -->
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-medium text-slate-300">SSL Renewal Website URL</label>
+                        <input id="renewalUrlInput" type="url" placeholder="https://cert-manager.provider.com" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 font-mono focus:outline-none focus:border-brand-blue">
+                    </div>
+                </div>
+
+                <div class="mt-5 flex justify-end">
+                    <button id="saveUrlBtn" class="bg-brand-blue hover:bg-brand-hoverBlue text-white px-4 py-2 rounded-lg text-xs font-medium transition shadow-lg shadow-brand-blue/25 flex items-center space-x-2">
+                        <i class="fa-solid fa-plus"></i><span id="saveUrlBtnText">Save Target Endpoint</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- REGISTRY TABLE (#8) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+                <div class="px-6 py-4 border-b border-slate-800">
+                    <h2 class="text-sm font-semibold text-slate-200">Active Monitored URLs Registry</h2>
+                    <p class="text-xs text-slate-400">View, edit, or decommission live targets.</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-950/50 text-slate-400 uppercase tracking-wider border-b border-slate-800 font-mono">
+                                <th class="py-3 px-6">URL</th>
+                                <th class="py-3 px-6">Category</th>
+                                <th class="py-3 px-6">Tags</th>
+                                <th class="py-3 px-6">Status</th>
+                                <th class="py-3 px-6">SSL Days</th>
+                                <th class="py-3 px-6 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminUrlTableBody" class="divide-y divide-slate-800/60 font-medium text-slate-300"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- FORM 2 & TABLE: SSL RENEWAL WEBSITES MANAGEMENT (#17) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl max-w-5xl">
+                <div class="border-b border-slate-800 pb-4 mb-4 flex justify-between items-center">
+                    <div>
+                        <h2 id="portalFormTitle" class="text-sm font-semibold text-slate-200">SSL Renewal Provider Websites</h2>
+                        <p class="text-xs text-slate-400">Manage vendor portals (DigiCert, Let's Encrypt, Cloudflare) linked when certificates require renewal.</p>
+                    </div>
+                    <button id="cancelPortalEditBtn" class="hidden text-xs text-brand-red hover:underline">Cancel Edit</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-medium text-slate-300">Provider Name</label>
+                        <input id="portalName" type="text" placeholder="DigiCert Portal" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-medium text-slate-300">Domain Pattern Filter</label>
+                        <input id="portalPattern" type="text" placeholder="fiberone.ng" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 font-mono">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-medium text-slate-300">Renewal URL Link</label>
+                        <input id="portalUrl" type="url" placeholder="https://www.digicert.com/account/login" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 font-mono">
+                    </div>
+                </div>
+
+                <div class="mt-5 flex justify-end">
+                    <button id="savePortalBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-xs font-medium transition shadow-lg shadow-purple-600/25 flex items-center space-x-2">
+                        <i class="fa-solid fa-link"></i><span id="savePortalBtnText">Save Renewal Provider</span>
+                    </button>
+                </div>
+
+                <!-- PORTALS REGISTRY -->
+                <div class="mt-6 overflow-x-auto border border-slate-800 rounded-lg">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-950/50 text-slate-400 uppercase tracking-wider border-b border-slate-800 font-mono">
+                                <th class="py-3 px-4">Provider Name</th>
+                                <th class="py-3 px-4">Domain Matching Filter</th>
+                                <th class="py-3 px-4">Renewal Link</th>
+                                <th class="py-3 px-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="portalsTableBody" class="divide-y divide-slate-800/60 font-medium text-slate-300"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+        <footer class="h-10 bg-slate-900 border-t border-slate-800 flex items-center justify-center px-6 text-xs text-slate-500 font-mono">
+            Fiberone Broadband v1.0.2
+        </footer>
+    </div>
+
+<script>
+const API_BASE = "http://localhost:7000";
+let editUrlId = null;
+let editPortalId = null;
+
+// Auth Guard
+function checkAuth() {
+    if (sessionStorage.getItem("fob-admin-auth") === "true") {
+        document.getElementById("authOverlay").classList.add("hidden");
+        loadAdminData();
+    } else {
+        document.getElementById("authOverlay").classList.remove("hidden");
+    }
+}
+
+document.getElementById("loginForm").addEventListener("submit", e => {
+    e.preventDefault();
+    if (document.getElementById("loginUser").value.trim() === "admin" && document.getElementById("loginPass").value.trim() === "admin123") {
+        sessionStorage.setItem("fob-admin-auth", "true");
+        checkAuth();
+    } else {
+        document.getElementById("loginError").innerText = "Invalid credentials (default: admin / admin123)";
+        document.getElementById("loginError").classList.remove("hidden");
+    }
+});
+
+document.getElementById("logoutBtn").addEventListener("click", () => {
+    sessionStorage.removeItem("fob-admin-auth");
+    checkAuth();
+});
+
+// Load URL targets & Renewal portals
+async function loadAdminData() {
+    loadUrls();
+    loadPortals();
+}
+
+async function loadUrls() {
+    try {
+        const res = await fetch(`${API_BASE}/api/urls`);
+        const data = await res.json();
+        const tbody = document.getElementById("adminUrlTableBody");
+        tbody.innerHTML = "";
+
+        data.forEach(row => {
+            const tags = (row.tags || []).join(", ");
+            const badge = row.isUp 
+                ? `<span class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">UP</span>`
+                : `<span class="px-2 py-0.5 rounded-full text-[10px] bg-brand-red/10 text-brand-red border border-brand-red/20">DOWN</span>`;
+
+            tbody.innerHTML += `
+                <tr class="hover:bg-slate-800/40">
+                    <td class="py-3 px-6 font-mono text-brand-blue">${row.url}</td>
+                    <td class="py-3 px-6">${row.category}</td>
+                    <td class="py-3 px-6">${tags}</td>
+                    <td class="py-3 px-6">${badge}</td>
+                    <td class="py-3 px-6 font-mono">${row.sslDays ?? 0} Days</td>
+                    <td class="py-3 px-6 text-right space-x-2">
+                        <button onclick="editUrl(${row.id}, '${row.url}', '${row.category}', '${tags}', '${row.renewalUrl || ''}')" class="bg-brand-blue/10 text-brand-blue px-2.5 py-1 rounded">Edit</button>
+                        <button onclick="deleteUrl(${row.id})" class="bg-brand-red/10 text-brand-red px-2.5 py-1 rounded">Delete</button>
+                    </td>
+                </tr>`;
+        });
+    } catch (e) { console.error("Error loading URLs:", e); }
+}
+
+// Add / Edit URL Target
+document.getElementById("saveUrlBtn").addEventListener("click", async () => {
+    const url = document.getElementById("urlInput").value.trim();
+    const category = document.getElementById("categoryInput").value;
+    const tag = document.getElementById("tagInput").value;
+    const renewalUrl = document.getElementById("renewalUrlInput").value.trim();
+
+    if (!url) return alert("URL is required.");
+
+    const payload = { url, category, tags: [tag], renewalUrl };
+    const method = editUrlId ? "PUT" : "POST";
+    const endpoint = editUrlId ? `${API_BASE}/api/admin/update-url/${editUrlId}` : `${API_BASE}/api/admin/add-url`;
+
+    await fetch(endpoint, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+
+    resetUrlForm();
+    loadUrls();
+});
+
+window.editUrl = (id, url, category, tags, renewalUrl) => {
+    editUrlId = id;
+    document.getElementById("urlInput").value = url;
+    document.getElementById("categoryInput").value = category;
+    document.getElementById("renewalUrlInput").value = renewalUrl;
+    document.getElementById("urlFormTitle").innerText = "Edit Monitored Endpoint";
+    document.getElementById("saveUrlBtnText").innerText = "Update Endpoint";
+    document.getElementById("cancelUrlEditBtn").classList.remove("hidden");
+};
+
+function resetUrlForm() {
+    editUrlId = null;
+    document.getElementById("urlInput").value = "";
+    document.getElementById("renewalUrlInput").value = "";
+    document.getElementById("urlFormTitle").innerText = "Add / Edit Target Endpoint";
+    document.getElementById("saveUrlBtnText").innerText = "Save Target Endpoint";
+    document.getElementById("cancelUrlEditBtn").classList.add("hidden");
+}
+document.getElementById("cancelUrlEditBtn").addEventListener("click", resetUrlForm);
+
+window.deleteUrl = async (id) => {
+    if (!confirm("Delete this target endpoint?")) return;
+    await fetch(`${API_BASE}/api/admin/delete-url/${id}`, { method: "DELETE" });
+    loadUrls();
+};
+
+// Portals CRUD (#17)
+async function loadPortals() {
+    const res = await fetch(`${API_BASE}/api/renewal-portals`);
+    const data = await res.json();
+    const tbody = document.getElementById("portalsTableBody");
+    tbody.innerHTML = "";
+    data.forEach(p => {
+        tbody.innerHTML += `
+            <tr>
+                <td class="py-2 px-4 font-semibold">${p.name}</td>
+                <td class="py-2 px-4 font-mono text-purple-400">${p.domainPattern}</td>
+                <td class="py-2 px-4 font-mono text-slate-400">${p.renewalUrl}</td>
+                <td class="py-2 px-4 text-right space-x-2">
+                    <button onclick="editPortal(${p.id}, '${p.name}', '${p.domainPattern}', '${p.renewalUrl}')" class="text-brand-blue hover:underline">Edit</button>
+                    <button onclick="deletePortal(${p.id})" class="text-brand-red hover:underline">Delete</button>
+                </td>
+            </tr>`;
+    });
+}
+
+document.getElementById("savePortalBtn").addEventListener("click", async () => {
+    const name = document.getElementById("portalName").value.trim();
+    const domainPattern = document.getElementById("portalPattern").value.trim();
+    const renewalUrl = document.getElementById("portalUrl").value.trim();
+
+    if (!name || !renewalUrl) return alert("Provider Name and Renewal URL required.");
+
+    const payload = { name, domainPattern, renewalUrl };
+    const method = editPortalId ? "PUT" : "POST";
+    const endpoint = editPortalId ? `${API_BASE}/api/admin/update-portal/${editPortalId}` : `${API_BASE}/api/admin/add-portal`;
+
+    await fetch(endpoint, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+
+    resetPortalForm();
+    loadPortals();
+});
+
+window.editPortal = (id, name, pattern, url) => {
+    editPortalId = id;
+    document.getElementById("portalName").value = name;
+    document.getElementById("portalPattern").value = pattern;
+    document.getElementById("portalUrl").value = url;
+    document.getElementById("portalFormTitle").innerText = "Edit SSL Renewal Provider Website";
+    document.getElementById("savePortalBtnText").innerText = "Update Provider";
+    document.getElementById("cancelPortalEditBtn").classList.remove("hidden");
+};
+
+function resetPortalForm() {
+    editPortalId = null;
+    document.getElementById("portalName").value = "";
+    document.getElementById("portalPattern").value = "";
+    document.getElementById("portalUrl").value = "";
+    document.getElementById("portalFormTitle").innerText = "SSL Renewal Provider Websites";
+    document.getElementById("savePortalBtnText").innerText = "Save Renewal Provider";
+    document.getElementById("cancelPortalEditBtn").classList.add("hidden");
+}
+document.getElementById("cancelPortalEditBtn").addEventListener("click", resetPortalForm);
+
+window.deletePortal = async (id) => {
+    if (!confirm("Delete this SSL renewal portal?")) return;
+    await fetch(`${API_BASE}/api/admin/delete-portal/${id}`, { method: "DELETE" });
+    loadPortals();
+};
+
+checkAuth();
+</script>
+</body>
+</html>

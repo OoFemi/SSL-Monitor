@@ -1,31 +1,12 @@
-# -------------------------
-# 1. BUILD STAGE
-# -------------------------
-FROM eclipse-temurin:21-jdk AS build
-
+# Build stage
+FROM eclipse-temurin:17-jdk-jammy AS build
 WORKDIR /app
 COPY . .
+./gradlew bootJar --no-daemon
 
-RUN chmod +x ./gradlew
-RUN ./gradlew clean build -x test
-
-
-# -------------------------
-# 2. RUNTIME STAGE
-# -------------------------
-FROM eclipse-temurin:21-jre
-
+# Run stage
+FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
-
-# Copy fat JAR
 COPY --from=build /app/build/libs/*.jar app.jar
-
-# Copy static files
-COPY src/main/resources/static /app/static
-
-# Copy config file (important!)
-COPY config.properties /app/config.properties
-
-EXPOSE 7000
-
+EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]

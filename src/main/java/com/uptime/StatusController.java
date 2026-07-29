@@ -1,38 +1,34 @@
 package com.uptime;
 
-import org.springframework.web.bind.annotation.*;
+import io.javalin.http.Context;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-@RestController
-@RequestMapping("/api/status")
-@CrossOrigin(origins = "*")
 public class StatusController {
 
-    private final MonitorService monitorService;
+    private static final List<Map<String, Object>> targets = new ArrayList<>();
+    private static final List<Map<String, Object>> renewalPortals = new ArrayList<>();
 
-    public StatusController(MonitorService monitorService) {
-        this.monitorService = monitorService;
+    public static void getTargets(Context ctx) {
+        ctx.json(targets);
     }
 
-    @GetMapping("/list")
-    public List<MonitoredUrl> listEndpoints() {
-        return monitorService.getAllMonitoredUrls();
+    public static void getRenewalPortals(Context ctx) {
+        ctx.json(renewalPortals);
     }
 
-    @PostMapping("/add")
-    public MonitoredUrl addEndpoint(@RequestBody MonitoredUrl url) {
-        monitorService.addMonitoredUrl(url);
-        return url;
-    }
-
-    @PostMapping("/delete")
-    public String deleteEndpoint(@RequestBody MonitoredUrl url) {
-        monitorService.removeMonitoredUrl(url.getUrl());
-        return "Deleted";
-    }
-
-    @GetMapping("/ping")
-    public String ping() {
-        return "Status API is running";
+    public static void addTarget(Context ctx) {
+        try {
+            Map<String, Object> body = ctx.bodyAsClass(Map.class);
+            if (body != null) {
+                targets.add(body);
+                ctx.status(201).json(Map.of("message", "Target added successfully"));
+                return;
+            }
+            ctx.status(400).json(Map.of("error", "Invalid payload"));
+        } catch (Exception e) {
+            ctx.status(400).json(Map.of("error", e.getMessage()));
+        }
     }
 }

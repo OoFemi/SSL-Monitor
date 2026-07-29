@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FOB SSL Monitor — Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { blue: '#0066ff', red: '#ff3333', hoverBlue: '#0052cc' },
+                        slate: { 850: '#151f32', 900: '#0f172a', 950: '#020617' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased flex h-screen overflow-hidden">
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between hidden md:flex">
+        <div>
+            <!-- Brand Header -->
+            <div class="h-16 flex items-center px-6 border-b border-slate-800 space-x-3">
+                <div class="w-8 h-8 rounded bg-brand-blue flex items-center justify-center font-bold text-white shadow-lg shadow-brand-blue/30">F</div>
+                <div>
+                    <span class="font-bold tracking-wide text-sm block">FOB SSL Monitor</span>
+                    <span class="text-[10px] text-brand-blue font-mono uppercase tracking-widest">v1.0.2 Enterprise</span>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="p-4 space-y-1">
+                <a href="dashboard.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg bg-brand-blue/10 text-brand-blue font-medium text-sm border border-brand-blue/20">
+                    <i class="fa-solid fa-chart-line w-5"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="admin.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                    <i class="fa-solid fa-shield-halved w-5"></i>
+                    <span>Admin</span>
+                </a>
+                <a href="logs.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                    <i class="fa-solid fa-terminal w-5"></i>
+                    <span>Logs</span>
+                </a>
+                <a href="settings.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                    <i class="fa-solid fa-gear w-5"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- System Theme Profile -->
+        <div class="p-4 border-t border-slate-800">
+            <div class="flex items-center justify-between px-3 py-2.5 rounded-lg bg-slate-950/50 border border-slate-800/80">
+                <div class="flex items-center space-x-3">
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span class="text-xs font-medium text-slate-300">Dark Mode</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="themeSwitch" class="sr-only peer" checked>
+                    <div class="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand-blue"></div>
+                </label>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA (VIEW ONLY) -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        
+        <!-- Top Navbar -->
+        <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 z-10">
+            <div class="flex items-center space-x-4">
+                <h1 class="text-lg font-semibold text-slate-100">Real-time Website & SSL Health</h1>
+                <span class="text-xs text-slate-400 hidden sm:inline" id="autoRefreshLabel">Auto-refresh every 6 hours</span>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <span id="lastUpdated" class="text-xs text-slate-400 hidden lg:inline">Last updated: —</span>
+                <button id="refreshBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-2 border border-slate-700">
+                    <i class="fa-solid fa-rotate"></i>
+                    <span>Refresh Now</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Viewport -->
+        <main class="flex-1 overflow-y-auto p-6 space-y-6">
+            
+            <!-- Metrics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-medium text-slate-400 uppercase">ONLINE TARGETS</p>
+                            <h3 id="upCount" class="text-3xl font-bold text-emerald-400 mt-1">0</h3>
+                        </div>
+                        <div class="p-2.5 bg-emerald-500/10 rounded-lg text-emerald-400 border border-emerald-500/20">
+                            <i class="fa-solid fa-circle-check text-lg"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-medium text-slate-400 uppercase">OFFLINE TARGETS</p>
+                            <h3 id="downCount" class="text-3xl font-bold text-brand-red mt-1">0</h3>
+                        </div>
+                        <div class="p-2.5 bg-brand-red/10 rounded-lg text-brand-red border border-brand-red/20">
+                            <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-medium text-slate-400 uppercase">AVG LATENCY</p>
+                            <h3 id="avgResponse" class="text-3xl font-bold text-brand-blue mt-1">0 ms</h3>
+                        </div>
+                        <div class="p-2.5 bg-brand-blue/10 rounded-lg text-brand-blue border border-brand-blue/20">
+                            <i class="fa-solid fa-bolt text-lg"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-medium text-slate-400 uppercase">AVG SSL VALIDITY</p>
+                            <h3 id="avgSSL" class="text-3xl font-bold text-purple-400 mt-1">0 Days</h3>
+                        </div>
+                        <div class="p-2.5 bg-purple-500/10 rounded-lg text-purple-400 border border-purple-500/20">
+                            <i class="fa-solid fa-shield-halved text-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monitored Endpoints View-Only Table -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+                <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-sm font-semibold text-slate-200">Monitored Infrastructure Registry</h2>
+                        <p class="text-xs text-slate-400">Read-only view of real-time target endpoints, response metrics, and SSL certificates.</p>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-950/50 text-slate-400 uppercase tracking-wider border-b border-slate-800 font-mono">
+                                <th class="py-3 px-6">Target Endpoint</th>
+                                <th class="py-3 px-6">Category / Tags</th>
+                                <th class="py-3 px-6">Uptime Status</th>
+                                <th class="py-3 px-6">Last Checked</th>
+                                <th class="py-3 px-6">Response Time</th>
+                                <th class="py-3 px-6">SSL Expiry</th>
+                                <th class="py-3 px-6 text-right">Actions / Renewal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboardTableBody" class="divide-y divide-slate-800/60 font-medium text-slate-300"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer Requirement #9 -->
+        <footer class="h-10 bg-slate-900 border-t border-slate-800 flex items-center justify-center px-6 text-xs text-slate-500 font-mono">
+            Fiberone Broadband v1.0.2
+        </footer>
+    </div>
+
+<script>
+const API_BASE = "http://localhost:7000";
+
+// Theme Switch Logic
+const themeSwitch = document.getElementById("themeSwitch");
+themeSwitch.addEventListener("change", () => {
+    document.body.classList.toggle("dark", themeSwitch.checked);
+});
+
+function formatTime(ts) {
+    if (!ts) return "—";
+    return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+}
+
+async function loadDashboard() {
+    try {
+        const [urlsRes, portalsRes] = await Promise.all([
+            fetch(`${API_BASE}/api/urls`),
+            fetch(`${API_BASE}/api/renewal-portals`)
+        ]);
+        const urls = await urlsRes.json();
+        const portals = await portalsRes.json();
+
+        const tbody = document.getElementById("dashboardTableBody");
+        tbody.innerHTML = "";
+
+        let up = 0, down = 0, totalResp = 0, totalSSL = 0;
+
+        urls.forEach((row) => {
+            if (row.isUp) up++; else down++;
+            totalResp += row.responseTime || 0;
+            totalSSL += row.sslDays || 0;
+
+            const tagsHtml = (row.tags || []).map(t => 
+                `<span class="bg-slate-800 px-2 py-0.5 rounded text-[10px] text-slate-400 border border-slate-700 mr-1">${t}</span>`
+            ).join("");
+
+            const statusBadge = row.isUp
+                ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>UP</span>`
+                : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-brand-red/10 text-brand-red border border-brand-red/20"><span class="w-1.5 h-1.5 rounded-full bg-brand-red mr-1.5"></span>DOWN</span>`;
+
+            // SSL Expired / Near Expiry (<= 14 Days) Renew Button Logic (#15, #16)
+            let actionCell = `<span class="text-slate-500 italic">Valid</span>`;
+            if (row.sslDays <= 14) {
+                // Find custom SSL portal link or fallback to global renewal link
+                const matchingPortal = portals.find(p => p.domainPattern && row.url.includes(p.domainPattern));
+                const renewalUrl = matchingPortal ? matchingPortal.renewalUrl : (row.renewalUrl || "https://digicert.com/ssl-certificate-renewal");
+
+                actionCell = `
+                    <a href="${renewalUrl}" target="_blank" rel="noopener noreferrer" 
+                       class="inline-flex items-center space-x-1 bg-brand-red hover:bg-brand-hoverRed text-white px-3 py-1.5 rounded text-xs font-semibold shadow-md shadow-brand-red/30 transition animate-bounce">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <span>Renew SSL</span>
+                    </a>`;
+            }
+
+            tbody.innerHTML += `
+                <tr class="hover:bg-slate-800/40 transition">
+                    <td class="py-3.5 px-6 font-mono text-brand-blue font-medium">${row.url}</td>
+                    <td class="py-3.5 px-6"><span class="text-slate-300 font-semibold mr-2">${row.category || "—"}</span> ${tagsHtml}</td>
+                    <td class="py-3.5 px-6">${statusBadge}</td>
+                    <td class="py-3.5 px-6 text-slate-400 font-mono">${formatTime(row.lastChecked)}</td>
+                    <td class="py-3.5 px-6 font-mono">${row.responseTime ?? 0} ms</td>
+                    <td class="py-3.5 px-6 font-mono ${row.sslDays <= 14 ? 'text-brand-red font-bold' : 'text-slate-300'}">
+                        ${row.sslDays ?? 0} Days ${row.sslDays <= 0 ? '(EXPIRED)' : ''}
+                    </td>
+                    <td class="py-3.5 px-6 text-right">${actionCell}</td>
+                </tr>`;
+        });
+
+        document.getElementById("upCount").innerText = up;
+        document.getElementById("downCount").innerText = down;
+        document.getElementById("avgResponse").innerText = urls.length ? Math.round(totalResp / urls.length) + " ms" : "0 ms";
+        document.getElementById("avgSSL").innerText = urls.length ? Math.round(totalSSL / urls.length) + " Days" : "0 Days";
+        document.getElementById("lastUpdated").innerText = "Last updated: " + new Date().toLocaleTimeString();
+
+    } catch (e) {
+        console.error("Failed to load dashboard data:", e);
+    }
+}
+
+document.getElementById("refreshBtn").addEventListener("click", loadDashboard);
+
+// Requirement #11: Auto refresh every 6 hours (6 * 60 * 60 * 1000 = 21,600,000 ms)
+const SIX_HOURS_MS = 21600000;
+loadDashboard();
+setInterval(loadDashboard, SIX_HOURS_MS);
+</script>
+</body>
+</html>

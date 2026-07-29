@@ -1,51 +1,51 @@
 package com.uptime;
 
-import org.springframework.stereotype.Repository;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 
-@Repository
 public class Database {
+    private static final String URL = "jdbc:sqlite:data.db";
 
-    // In-memory store of monitored URLs
-    private static final List<MonitoredUrl> urls = new ArrayList<>();
-    private static int nextId = 1;
-
-    public List<MonitoredUrl> getAllUrls() {
-        return new ArrayList<>(urls);
-    }
-
-    public void saveUrl(MonitoredUrl url) {
-        url.setId(nextId++);
-        urls.add(url);
-    }
-
-    public void updateUrl(int id, MonitoredUrl url) {
-        for (int i = 0; i < urls.size(); i++) {
-            if (urls.get(i).getId() == id) {
-                urls.set(i, url);
-                return;
-            }
+    public static Connection connect() {
+        try {
+            return DriverManager.getConnection(URL);
+        } catch (Exception e) {
+            System.out.println("Database connection error: " + e.getMessage());
+            return null;
         }
     }
 
-    public void deleteUrl(String urlString) {
-        urls.removeIf(u -> u.getUrl().equalsIgnoreCase(urlString));
-    }
+    public static void initializeDatabase() {
+        String createUrlsTable = "CREATE TABLE IF NOT EXISTS monitored_urls (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "url TEXT NOT NULL, " +
+                "active INTEGER DEFAULT 1)";
 
-    /**
-     * ✅ Alerts for EmailService
-     * Generate alerts if endpoints are down or SSL certificates are expiring soon.
-     */
-    public static List<EndpointStatus> getAlerts() {
-        List<EndpointStatus> alerts = new ArrayList<>();
-        for (MonitoredUrl u : urls) {
-            if (!u.isUp()) {
-                alerts.add(new EndpointStatus(u.getUrl(), "Endpoint is DOWN"));
-            }
-            if (u.getSslDays() < 10) {
-                alerts.add(new EndpointStatus(u.getUrl(), "SSL certificate expiring soon"));
-            }
+        String createStatusTable = "CREATE TABLE IF NOT EXISTS endpoint_status (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "url_id INTEGER, " +
+                "status TEXT, " +
+                "response_time INTEGER, " +
+                "ssl_expiry_days INTEGER, " +
+                "checked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
+
+        String createAdminTable = "CREATE TABLE IF NOT EXISTS admin_config (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "username TEXT NOT NULL, " +
+                "password_hash TEXT NOT NULL, " +
+                "logo_path TEXT)";
+
+        try (Connection conn = connect();
+             Statement stmt = conn.createStatement()) {
+            
+            stmt.execute(createUrlsTable);
+            stmt.execute(createStatusTable);
+            stmt.execute(createAdminTable);
+            
+            System.out.println("Database tables initialized successfully.");
+        } catch (Exception e) {
+            System.out.println("Error initializing database: " + e.getMessage());
         }
-        return alerts;
     }
 }

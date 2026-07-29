@@ -1,11 +1,13 @@
-version: "3.9"
+version: '3.8'
 
 services:
-  uptime-monitor:
+  ssl-monitor:
     build: .
-    container_name: uptime-monitor
+    container_name: ssl-monitor-app
     ports:
-      - "7000:7000"
+      - "8080:8080"
     volumes:
+      - ./data.db:/app/data.db
+      - ./uptime.db:/app/uptime.db
       - ./config.properties:/app/config.properties
     restart: unless-stopped
