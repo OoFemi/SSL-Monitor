@@ -1,0 +1,10 @@
+# Gradle
+.gradle/
+build/
+
+# Logs
+app.log
+
+# IDE files (if applicable)
+.idea/
+*.iml
