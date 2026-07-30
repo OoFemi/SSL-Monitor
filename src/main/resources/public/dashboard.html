@@ -172,14 +172,15 @@
             </div>
         </main>
 
-        <!-- Footer Requirement #9 -->
+        <!-- Footer -->
         <footer class="h-10 bg-slate-900 border-t border-slate-800 flex items-center justify-center px-6 text-xs text-slate-500 font-mono">
             Fiberone Broadband v1.0.2
         </footer>
     </div>
 
 <script>
-const API_BASE = "http://localhost:7000";
+// Use empty string for relative path resolution across different IPs/hosts
+const API_BASE = "";
 
 // Theme Switch Logic
 const themeSwitch = document.getElementById("themeSwitch");
@@ -206,6 +207,10 @@ async function loadDashboard() {
 
         let up = 0, down = 0, totalResp = 0, totalSSL = 0;
 
+        if (!Array.isArray(urls) || urls.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-500 italic">No active targets found. Add targets via the Admin panel.</td></tr>`;
+        }
+
         urls.forEach((row) => {
             if (row.isUp) up++; else down++;
             totalResp += row.responseTime || 0;
@@ -219,10 +224,8 @@ async function loadDashboard() {
                 ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>UP</span>`
                 : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-brand-red/10 text-brand-red border border-brand-red/20"><span class="w-1.5 h-1.5 rounded-full bg-brand-red mr-1.5"></span>DOWN</span>`;
 
-            // SSL Expired / Near Expiry (<= 14 Days) Renew Button Logic (#15, #16)
             let actionCell = `<span class="text-slate-500 italic">Valid</span>`;
             if (row.sslDays <= 14) {
-                // Find custom SSL portal link or fallback to global renewal link
                 const matchingPortal = portals.find(p => p.domainPattern && row.url.includes(p.domainPattern));
                 const renewalUrl = matchingPortal ? matchingPortal.renewalUrl : (row.renewalUrl || "https://digicert.com/ssl-certificate-renewal");
 
@@ -261,7 +264,6 @@ async function loadDashboard() {
 
 document.getElementById("refreshBtn").addEventListener("click", loadDashboard);
 
-// Requirement #11: Auto refresh every 6 hours (6 * 60 * 60 * 1000 = 21,600,000 ms)
 const SIX_HOURS_MS = 21600000;
 loadDashboard();
 setInterval(loadDashboard, SIX_HOURS_MS);

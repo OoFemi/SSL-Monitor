@@ -17,7 +17,7 @@ public class App {
 
         // Renewal Portals Endpoints
         app.get("/api/renewal-portals", StatusController::getRenewalPortals);
-        
+
         // Admin Endpoints
         app.post("/api/admin/logo", AdminController::uploadLogo);
     }
