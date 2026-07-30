@@ -159,8 +159,9 @@
 
             <!-- PORTALS TABLE -->
             <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl max-w-5xl">
-                <div class="border-b border-slate-800 pb-4 mb-4">
+                <div class="border-b border-slate-800 pb-4 mb-4 flex justify-between items-center">
                     <h2 id="portalFormTitle" class="text-sm font-semibold text-slate-200">SSL Renewal Provider Websites</h2>
+                    <button id="cancelPortalEditBtn" class="hidden text-xs text-brand-red hover:underline">Cancel Edit</button>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="space-y-1.5">
@@ -177,7 +178,7 @@
                     </div>
                 </div>
                 <div class="mt-5 flex justify-end">
-                    <button id="savePortalBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-xs font-medium transition shadow-lg">
+                    <button id="savePortalBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-xs font-medium transition shadow-lg flex items-center space-x-2">
                         <i class="fa-solid fa-link"></i><span id="savePortalBtnText">Save Renewal Provider</span>
                     </button>
                 </div>

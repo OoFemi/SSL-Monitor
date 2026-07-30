@@ -22,7 +22,7 @@ if (loginForm) {
         .then(data => {
             if (data.success || data.token) {
                 sessionStorage.setItem("adminToken", data.token || "active-session");
-                sessionStorage.setItem("fob-admin-auth", "true");
+                sessionStorage.setItem("f-admin-auth", "true");
                 showAdminPanel();
             } else {
                 const errEl = document.getElementById('loginError');
@@ -34,10 +34,10 @@ if (loginForm) {
         })
         .catch(err => {
             console.error("Login network error:", err);
-            // Fallback for default local credentials
+            // Fallback for default local credentials configuration
             if (u === "admin" && p === "admin123") {
                 sessionStorage.setItem("adminToken", "fallback-token");
-                sessionStorage.setItem("fob-admin-auth", "true");
+                sessionStorage.setItem("f-admin-auth", "true");
                 showAdminPanel();
             } else {
                 const errEl = document.getElementById('loginError');
@@ -55,7 +55,7 @@ const logoutBtn = document.getElementById('logoutBtn');
 if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
         sessionStorage.removeItem("adminToken");
-        sessionStorage.removeItem("fob-admin-auth");
+        sessionStorage.removeItem("f-admin-auth");
         location.reload();
     });
 }
@@ -99,15 +99,15 @@ async function loadUrls() {
                 : `<span class="px-2 py-0.5 rounded-full text-[10px] bg-brand-red/10 text-brand-red border border-brand-red/20">DOWN</span>`;
 
             tbody.innerHTML += `
-                <tr class="hover:bg-slate-800/40">
-                    <td class="py-3 px-6 font-mono text-brand-blue">${row.url || row.targetUrl}</td>
-                    <td class="py-3 px-6">${row.category || 'Production'}</td>
-                    <td class="py-3 px-6">${tags}</td>
+                <tr class="hover:bg-slate-800/40 transition">
+                    <td class="py-3 px-6 font-mono text-brand-blue">${escapeHtml(row.url || row.targetUrl || '')}</td>
+                    <td class="py-3 px-6">${escapeHtml(row.category || 'Production')}</td>
+                    <td class="py-3 px-6"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px]">${escapeHtml(tags)}</span></td>
                     <td class="py-3 px-6">${badge}</td>
-                    <td class="py-3 px-6 font-mono">${row.sslDays ?? '--'} Days</td>
+                    <td class="py-3 px-6 font-mono">${row.sslDays !== undefined && row.sslDays !== null ? row.sslDays + ' Days' : '--'}</td>
                     <td class="py-3 px-6 text-right space-x-2">
-                        <button onclick="editUrl(${row.id}, '${row.url || row.targetUrl}', '${row.category || 'Production'}', '${tags}', '${row.renewalUrl || ''}')" class="bg-brand-blue/10 text-brand-blue px-2.5 py-1 rounded hover:bg-brand-blue/20">Edit</button>
-                        <button onclick="deleteUrl(${row.id})" class="bg-brand-red/10 text-brand-red px-2.5 py-1 rounded hover:bg-brand-red/20">Delete</button>
+                        <button onclick="window.editUrl(${row.id}, '${escapeQuote(row.url || row.targetUrl)}', '${escapeQuote(row.category || 'Production')}', '${escapeQuote(tags)}', '${escapeQuote(row.renewalUrl || '')}')" class="text-brand-blue hover:text-brand-hoverBlue p-1 transition" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="window.deleteUrl(${row.id})" class="text-brand-red hover:text-red-400 p-1 transition" title="Delete"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>`;
         });
@@ -131,7 +131,7 @@ if (saveUrlBtn) {
             return;
         }
 
-        const payload = { url, category, tags: [tag], renewalUrl };
+        const payload = { url, category, tags: [tag], tag, renewalUrl };
         const method = editUrlId ? "PUT" : "POST";
         const endpoint = editUrlId ? `/api/admin/update-url/${editUrlId}` : `/api/admin/add-url`;
 
@@ -159,9 +159,10 @@ window.editUrl = (id, url, category, tags, renewalUrl) => {
     document.getElementById("urlInput").value = url;
     document.getElementById("categoryInput").value = category;
     document.getElementById("renewalUrlInput").value = renewalUrl;
-    document.getElementById("urlFormTitle").innerText = "Edit Monitored Endpoint";
+    document.getElementById("urlFormTitleinnerText") || (document.getElementById("urlFormTitle").innerText = "Edit Monitored Endpoint (ID: " + id + ")");
     document.getElementById("saveUrlBtnText").innerText = "Update Endpoint";
     document.getElementById("cancelUrlEditBtn").classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 function resetUrlForm() {
@@ -181,8 +182,12 @@ if (cancelUrlEditBtn) {
 window.deleteUrl = async (id) => {
     if (!confirm("Are you sure you want to delete this target endpoint?")) return;
     try {
-        await fetch(`/api/admin/delete-url/${id}`, { method: "DELETE" });
-        loadUrls();
+        const res = await fetch(`/api/admin/delete-url/${id}`, { method: "DELETE" });
+        if (res.ok) {
+            loadUrls();
+        } else {
+            alert("Failed to delete target endpoint.");
+        }
     } catch (err) {
         console.error("Error deleting URL:", err);
     }
@@ -204,14 +209,18 @@ async function loadPortals() {
         }
 
         data.forEach(p => {
+            const portalName = p.name || p.providerName || '';
+            const pattern = p.domainPattern || p.pattern || '';
+            const rUrl = p.renewalUrl || p.url || '';
+
             tbody.innerHTML += `
-                <tr>
-                    <td class="py-2 px-4 font-semibold">${p.name}</td>
-                    <td class="py-2 px-4 font-mono text-purple-400">${p.domainPattern}</td>
-                    <td class="py-2 px-4 font-mono text-slate-400">${p.renewalUrl}</td>
-                    <td class="py-2 px-4 text-right space-x-2">
-                        <button onclick="editPortal(${p.id}, '${p.name}', '${p.domainPattern}', '${p.renewalUrl}')" class="text-brand-blue hover:underline">Edit</button>
-                        <button onclick="deletePortal(${p.id})" class="text-brand-red hover:underline">Delete</button>
+                <tr class="hover:bg-slate-800/40 transition">
+                    <td class="py-3 px-4 font-semibold text-slate-200">${escapeHtml(portalName)}</td>
+                    <td class="py-3 px-4 font-mono text-purple-400">${escapeHtml(pattern)}</td>
+                    <td class="py-3 px-4 font-mono text-brand-blue truncate max-w-xs"><a href="${escapeHtml(rUrl)}" target="_blank" class="hover:underline">${escapeHtml(rUrl)}</a></td>
+                    <td class="py-3 px-4 text-right space-x-2">
+                        <button onclick="window.editPortal(${p.id}, '${escapeQuote(portalName)}', '${escapeQuote(pattern)}', '${escapeQuote(rUrl)}')" class="text-brand-blue hover:text-brand-hoverBlue p-1 transition" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="window.deletePortal(${p.id})" class="text-brand-red hover:text-red-400 p-1 transition" title="Delete"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>`;
         });
@@ -247,6 +256,8 @@ if (savePortalBtn) {
             if (res.ok) {
                 resetPortalForm();
                 loadPortals();
+            } else {
+                alert("Failed to save renewal provider.");
             }
         } catch (err) {
             console.error("Error saving renewal portal:", err);
@@ -259,7 +270,7 @@ window.editPortal = (id, name, pattern, url) => {
     document.getElementById("portalName").value = name;
     document.getElementById("portalPattern").value = pattern;
     document.getElementById("portalUrl").value = url;
-    document.getElementById("portalFormTitle").innerText = "Edit SSL Renewal Provider Website";
+    document.getElementById("portalFormTitle").innerText = "Edit SSL Renewal Provider Website (ID: " + id + ")";
     document.getElementById("savePortalBtnText").innerText = "Update Provider";
     document.getElementById("cancelPortalEditBtn").classList.remove("hidden");
 };
@@ -280,11 +291,29 @@ if (cancelPortalEditBtn) {
 }
 
 window.deletePortal = async (id) => {
-    if (!confirm("Delete this SSL renewal portal?")) return;
+    if (!confirm("Are you sure you want to delete this SSL renewal portal?")) return;
     try {
-        await fetch(`/api/admin/delete-portal/${id}`, { method: "DELETE" });
-        loadPortals();
+        const res = await fetch(`/api/admin/delete-portal/${id}`, { method: "DELETE" });
+        if (res.ok) {
+            loadPortals();
+        } else {
+            alert("Failed to delete renewal portal.");
+        }
     } catch (err) {
         console.error("Error deleting portal:", err);
     }
 };
+
+// Utility Helpers for Safe String Output
+function escapeHtml(str) {
+    return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function escapeQuote(str) {
+    return String(str || "").replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
