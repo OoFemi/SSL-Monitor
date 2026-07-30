@@ -28,14 +28,16 @@ public class StatusController {
             if (urlStr != null && !urlStr.isEmpty()) {
                 long startTime = System.currentTimeMillis();
                 try {
+                    boolean isHttps = urlStr.toLowerCase().startsWith("https://");
                     String formattedUrl = urlStr;
                     if (!formattedUrl.startsWith("http://") && !formattedUrl.startsWith("https://")) {
                         formattedUrl = "https://" + formattedUrl;
+                        isHttps = true;
                     }
 
                     URL url = URI.create(formattedUrl).toURL();
                     
-                    if (formattedUrl.startsWith("https://")) {
+                    if (isHttps) {
                         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
                         conn.setConnectTimeout(4000);
                         conn.setReadTimeout(4000);
@@ -62,7 +64,7 @@ public class StatusController {
                         }
                         conn.disconnect();
                     } else {
-                        // Fallback handling for plain HTTP targets
+                        // Fallback handling for plain HTTP targets (no SSL)
                         java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
                         conn.setConnectTimeout(4000);
                         conn.setRequestMethod("GET");
@@ -72,7 +74,7 @@ public class StatusController {
                         evaluated.put("isUp", responseCode >= 200 && responseCode < 400);
                         evaluated.put("responseTime", System.currentTimeMillis() - startTime);
                         evaluated.put("lastChecked", System.currentTimeMillis());
-                        evaluated.put("sslDays", 0);
+                        evaluated.put("sslDays", -1); // -1 signifies N/A for non-HTTPS connections
                         conn.disconnect();
                     }
 

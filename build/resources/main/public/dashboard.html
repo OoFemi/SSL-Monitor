@@ -205,7 +205,7 @@ async function loadDashboard() {
         const tbody = document.getElementById("dashboardTableBody");
         tbody.innerHTML = "";
 
-        let up = 0, down = 0, totalResp = 0, totalSSL = 0;
+        let up = 0, down = 0, totalResp = 0, totalSSL = 0, sslCount = 0;
 
         if (!Array.isArray(urls) || urls.length === 0) {
             tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-500 italic">No active targets found. Add targets via the Admin panel.</td></tr>`;
@@ -214,7 +214,12 @@ async function loadDashboard() {
         urls.forEach((row) => {
             if (row.isUp) up++; else down++;
             totalResp += row.responseTime || 0;
-            totalSSL += row.sslDays || 0;
+            
+            // Only aggregate SSL days if it's a valid SSL certificate (>= 0)
+            if (row.sslDays >= 0) {
+                totalSSL += row.sslDays;
+                sslCount++;
+            }
 
             const tagsHtml = (row.tags || []).map(t => 
                 `<span class="bg-slate-800 px-2 py-0.5 rounded text-[10px] text-slate-400 border border-slate-700 mr-1">${t}</span>`
@@ -225,7 +230,7 @@ async function loadDashboard() {
                 : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-brand-red/10 text-brand-red border border-brand-red/20"><span class="w-1.5 h-1.5 rounded-full bg-brand-red mr-1.5"></span>DOWN</span>`;
 
             let actionCell = `<span class="text-slate-500 italic">Valid</span>`;
-            if (row.sslDays <= 14) {
+            if (row.sslDays >= 0 && row.sslDays <= 14) {
                 const matchingPortal = portals.find(p => p.domainPattern && row.url.includes(p.domainPattern));
                 const renewalUrl = matchingPortal ? matchingPortal.renewalUrl : (row.renewalUrl || "https://digicert.com/ssl-certificate-renewal");
 
@@ -235,18 +240,30 @@ async function loadDashboard() {
                         <i class="fa-solid fa-arrows-rotate"></i>
                         <span>Renew SSL</span>
                     </a>`;
+            } else if (row.sslDays < 0) {
+                actionCell = `<span class="text-slate-500 italic">N/A</span>`;
+            }
+
+            let sslDisplay = "";
+            let sslClass = "text-slate-300";
+            if (row.sslDays < 0) {
+                sslDisplay = "N/A (HTTP)";
+                sslClass = "text-slate-500 italic";
+            } else if (row.sslDays <= 14) {
+                sslDisplay = row.sslDays + " Days " + (row.sslDays <= 0 ? "(EXPIRED)" : "");
+                sslClass = "text-brand-red font-bold";
+            } else {
+                sslDisplay = row.sslDays + " Days";
             }
 
             tbody.innerHTML += `
                 <tr class="hover:bg-slate-800/40 transition">
-                    <td class="py-3.5 px-6 font-mono text-brand-blue font-medium">${row.url}</td>
+                    <td class="py-3.5 px-6 font-mono text-slate-100 font-medium">${row.url}</td>
                     <td class="py-3.5 px-6"><span class="text-slate-300 font-semibold mr-2">${row.category || "—"}</span> ${tagsHtml}</td>
                     <td class="py-3.5 px-6">${statusBadge}</td>
                     <td class="py-3.5 px-6 text-slate-400 font-mono">${formatTime(row.lastChecked)}</td>
                     <td class="py-3.5 px-6 font-mono">${row.responseTime ?? 0} ms</td>
-                    <td class="py-3.5 px-6 font-mono ${row.sslDays <= 14 ? 'text-brand-red font-bold' : 'text-slate-300'}">
-                        ${row.sslDays ?? 0} Days ${row.sslDays <= 0 ? '(EXPIRED)' : ''}
-                    </td>
+                    <td class="py-3.5 px-6 font-mono ${sslClass}">${sslDisplay}</td>
                     <td class="py-3.5 px-6 text-right">${actionCell}</td>
                 </tr>`;
         });
@@ -254,7 +271,7 @@ async function loadDashboard() {
         document.getElementById("upCount").innerText = up;
         document.getElementById("downCount").innerText = down;
         document.getElementById("avgResponse").innerText = urls.length ? Math.round(totalResp / urls.length) + " ms" : "0 ms";
-        document.getElementById("avgSSL").innerText = urls.length ? Math.round(totalSSL / urls.length) + " Days" : "0 Days";
+        document.getElementById("avgSSL").innerText = sslCount ? Math.round(totalSSL / sslCount) + " Days" : "0 Days";
         document.getElementById("lastUpdated").innerText = "Last updated: " + new Date().toLocaleTimeString();
 
     } catch (e) {
