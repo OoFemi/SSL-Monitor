@@ -28,29 +28,39 @@
             width: 8px;
         }
         ::-webkit-scrollbar-track {
+            background: #f8fafc;
+        }
+        .dark ::-webkit-scrollbar-track {
             background: #020617;
         }
         ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
             background: #334155;
             border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
             background: #475569;
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased flex h-screen overflow-hidden">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans antialiased flex h-screen overflow-hidden transition-colors duration-200">
 
     <!-- SIDEBAR -->
-    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between hidden md:flex shrink-0">
+    <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between hidden md:flex shrink-0">
         <div>
             <!-- Brand Header -->
-            <div class="h-16 flex items-center px-6 border-b border-slate-800 overflow-hidden">
+            <div class="h-16 flex items-center px-6 border-b border-slate-200 dark:border-slate-800 overflow-hidden">
                 <img src="/images/logo.png" alt="Company Logo" class="h-7 max-w-[130px] w-auto object-contain">
             </div>
 
             <nav class="p-4 space-y-1">
-                <a href="dashboard.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="dashboard.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-chart-line w-5"></i>
                     <span>Dashboard</span>
                 </a>
@@ -58,44 +68,58 @@
                     <i class="fa-solid fa-shield-halved w-5"></i>
                     <span>Admin</span>
                 </a>
-                <a href="logs.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="logs.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-terminal w-5"></i>
                     <span>Logs</span>
                 </a>
-                <a href="documentation.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="documentation.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-book w-5"></i>
                     <span>Documentation</span>
                 </a>
-                <a href="about.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="about.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-circle-info w-5"></i>
                     <span>About</span>
                 </a>
-                <a href="settings.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="settings.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-gear w-5"></i>
                     <span>Settings</span>
                 </a>
             </nav>
         </div>
+
+        <!-- System Theme Profile -->
+        <div class="p-4 border-t border-slate-200 dark:border-slate-800">
+            <div class="flex items-center justify-between px-3 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800/80">
+                <div class="flex items-center space-x-3">
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span id="themeText" class="text-xs font-medium text-slate-700 dark:text-slate-300">Dark Mode</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="themeSwitch" class="sr-only peer">
+                    <div class="w-8 h-4 bg-slate-300 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand-blue"></div>
+                </label>
+            </div>
+        </div>
     </aside>
 
     <!-- AUTH GATE OVERLAY -->
-    <div id="authOverlay" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 max-w-sm w-full shadow-2xl space-y-6">
+    <div id="authOverlay" class="fixed inset-0 z-50 bg-slate-900/80 dark:bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 max-w-sm w-full shadow-2xl space-y-6">
             <div class="text-center space-y-2">
                 <div class="w-12 h-12 rounded-xl bg-brand-blue/10 border border-brand-blue/20 text-brand-blue flex items-center justify-center mx-auto text-lg">
                     <i class="fa-solid fa-lock"></i>
                 </div>
-                <h2 class="text-lg font-bold text-slate-100">Admin Authentication</h2>
-                <p class="text-xs text-slate-400">Secure access to endpoint management & SSL provider configuration.</p>
+                <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Admin Authentication</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Secure access to endpoint management & SSL provider configuration.</p>
             </div>
             <form id="loginForm" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1">Username</label>
-                    <input id="loginUser" type="text" required placeholder="admin" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-brand-blue">
+                    <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Username</label>
+                    <input id="loginUser" type="text" required placeholder="admin" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-brand-blue">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1">Password</label>
-                    <input id="loginPass" type="password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-brand-blue">
+                    <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Password</label>
+                    <input id="loginPass" type="password" required placeholder="••••••••" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-brand-blue">
                 </div>
                 <p id="loginError" class="text-xs text-brand-red hidden"></p>
                 <button type="submit" class="w-full bg-brand-blue hover:bg-brand-hoverBlue text-white py-2.5 rounded-lg text-xs font-semibold transition shadow-lg shadow-brand-blue/25">Authenticate Session</button>
@@ -105,9 +129,9 @@
 
     <!-- MAIN CONTAINER -->
     <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
-        <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 z-10 shrink-0">
+        <header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 z-10 shrink-0">
             <div class="flex items-center space-x-4">
-                <h1 class="text-lg font-semibold text-slate-100">Admin Management Portal</h1>
+                <h1 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Admin Management Portal</h1>
             </div>
             <button id="logoutBtn" class="bg-brand-red/10 hover:bg-brand-red/20 text-brand-red border border-brand-red/20 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-2">
                 <i class="fa-solid fa-right-from-bracket"></i>
@@ -119,37 +143,37 @@
         <div class="flex-1 overflow-y-auto p-6 space-y-6">
             
             <!-- FORM 1: TARGET URL MANAGEMENT -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl max-w-5xl">
-                <div class="border-b border-slate-800 pb-4 mb-4 flex justify-between items-center">
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm max-w-5xl">
+                <div class="border-b border-slate-200 dark:border-slate-800 pb-4 mb-4 flex justify-between items-center">
                     <div>
-                        <h2 id="urlFormTitle" class="text-sm font-semibold text-slate-200">Add / Edit Target Endpoint</h2>
+                        <h2 id="urlFormTitle" class="text-sm font-semibold text-slate-900 dark:text-slate-200">Add / Edit Target Endpoint</h2>
                     </div>
                     <button id="cancelUrlEditBtn" class="hidden text-xs text-brand-red hover:underline">Cancel Edit</button>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="space-y-1.5">
-                        <label class="block text-xs font-medium text-slate-300">Target URL</label>
-                        <input id="urlInput" type="url" placeholder="https://api.fob.ng" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 font-mono focus:outline-none focus:border-brand-blue">
+                        <label class="block text-xs font-medium text-slate-700 dark:text-slate-300">Target URL</label>
+                        <input id="urlInput" type="url" placeholder="https://api.fob.ng" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-mono focus:outline-none focus:border-brand-blue">
                     </div>
                     <div class="space-y-1.5">
-                        <label class="block text-xs font-medium text-slate-300">Category</label>
-                        <select id="categoryInput" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-brand-blue">
+                        <label class="block text-xs font-medium text-slate-700 dark:text-slate-300">Category</label>
+                        <select id="categoryInput" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-brand-blue">
                             <option value="Production">Production</option>
                             <option value="Test">Test</option>
                             <option value="Staging">Staging</option>
                         </select>
                     </div>
                     <div class="space-y-1.5">
-                        <label class="block text-xs font-medium text-slate-300">Tag</label>
-                        <select id="tagInput" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-brand-blue">
+                        <label class="block text-xs font-medium text-slate-700 dark:text-slate-300">Tag</label>
+                        <select id="tagInput" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-brand-blue">
                             <option value="API">API</option>
                             <option value="Frontend">Frontend</option>
                         </select>
                     </div>
                     <div class="space-y-1.5">
-                        <label class="block text-xs font-medium text-slate-300">SSL Renewal URL</label>
-                        <input id="renewalUrlInput" type="url" placeholder="https://cert-manager.com" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 font-mono focus:outline-none focus:border-brand-blue">
+                        <label class="block text-xs font-medium text-slate-700 dark:text-slate-300">SSL Renewal URL</label>
+                        <input id="renewalUrlInput" type="url" placeholder="https://cert-manager.com" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-mono focus:outline-none focus:border-brand-blue">
                     </div>
                 </div>
 
@@ -161,14 +185,14 @@
             </div>
 
             <!-- REGISTRY TABLE -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl max-w-5xl">
-                <div class="px-6 py-4 border-b border-slate-800">
-                    <h2 class="text-sm font-semibold text-slate-200">Active Monitored URLs Registry</h2>
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm max-w-5xl">
+                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+                    <h2 class="text-sm font-semibold text-slate-900 dark:text-slate-200">Active Monitored URLs Registry</h2>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-xs">
                         <thead>
-                            <tr class="bg-slate-950/50 text-slate-400 uppercase tracking-wider border-b border-slate-800 font-mono">
+                            <tr class="bg-slate-100 dark:bg-slate-950/50 text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 font-mono">
                                 <th class="py-3 px-6">URL</th>
                                 <th class="py-3 px-6">Category</th>
                                 <th class="py-3 px-6">Tags</th>
@@ -177,29 +201,29 @@
                                 <th class="py-3 px-6 text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="adminUrlTableBody" class="divide-y divide-slate-800/60 font-medium text-slate-300"></tbody>
+                        <tbody id="adminUrlTableBody" class="divide-y divide-slate-200 dark:divide-slate-800/60 font-medium text-slate-700 dark:text-slate-300"></tbody>
                     </table>
                 </div>
             </div>
 
             <!-- PORTALS TABLE -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl max-w-5xl mb-12">
-                <div class="border-b border-slate-800 pb-4 mb-4 flex justify-between items-center">
-                    <h2 id="portalFormTitle" class="text-sm font-semibold text-slate-200">SSL Renewal Provider Websites</h2>
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm max-w-5xl mb-12">
+                <div class="border-b border-slate-200 dark:border-slate-800 pb-4 mb-4 flex justify-between items-center">
+                    <h2 id="portalFormTitle" class="text-sm font-semibold text-slate-900 dark:text-slate-200">SSL Renewal Provider Websites</h2>
                     <button id="cancelPortalEditBtn" class="hidden text-xs text-brand-red hover:underline">Cancel Edit</button>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="space-y-1.5">
-                        <label class="block text-xs font-medium text-slate-300">Provider Name</label>
-                        <input id="portalName" type="text" placeholder="DigiCert" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100">
+                        <label class="block text-xs font-medium text-slate-700 dark:text-slate-300">Provider Name</label>
+                        <input id="portalName" type="text" placeholder="DigiCert" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-slate-100">
                     </div>
                     <div class="space-y-1.5">
-                        <label class="block text-xs font-medium text-slate-300">Domain Pattern Filter</label>
-                        <input id="portalPattern" type="text" placeholder="fob.ng" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 font-mono">
+                        <label class="block text-xs font-medium text-slate-700 dark:text-slate-300">Domain Pattern Filter</label>
+                        <input id="portalPattern" type="text" placeholder="fob.ng" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-mono">
                     </div>
                     <div class="space-y-1.5">
-                        <label class="block text-xs font-medium text-slate-300">Renewal URL Link</label>
-                        <input id="portalUrl" type="url" placeholder="https://portal.digicert.com" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 font-mono">
+                        <label class="block text-xs font-medium text-slate-700 dark:text-slate-300">Renewal URL Link</label>
+                        <input id="portalUrl" type="url" placeholder="https://portal.digicert.com" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-slate-100 font-mono">
                     </div>
                 </div>
                 <div class="mt-5 flex justify-end">
@@ -207,17 +231,17 @@
                         <i class="fa-solid fa-link"></i><span id="savePortalBtnText">Save Renewal Provider</span>
                     </button>
                 </div>
-                <div class="mt-6 overflow-x-auto border border-slate-800 rounded-lg">
+                <div class="mt-6 overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg">
                     <table class="w-full text-left border-collapse text-xs">
                         <thead>
-                            <tr class="bg-slate-950/50 text-slate-400 uppercase tracking-wider border-b border-slate-800 font-mono">
+                            <tr class="bg-slate-100 dark:bg-slate-950/50 text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 font-mono">
                                 <th class="py-3 px-4">Provider Name</th>
                                 <th class="py-3 px-4">Domain Matching Filter</th>
                                 <th class="py-3 px-4">Renewal Link</th>
                                 <th class="py-3 px-4 text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="portalsTableBody" class="divide-y divide-slate-800/60 font-medium text-slate-300"></tbody>
+                        <tbody id="portalsTableBody" class="divide-y divide-slate-200 dark:divide-slate-800/60 font-medium text-slate-700 dark:text-slate-300"></tbody>
                     </table>
                 </div>
             </div>
@@ -225,6 +249,34 @@
         </div>
     </div>
 
+<script>
+// Theme Switch Logic
+const themeSwitch = document.getElementById("themeSwitch");
+const themeText = document.getElementById("themeText");
+
+const currentTheme = localStorage.getItem("fob_theme") || (document.documentElement.classList.contains("dark") ? "dark" : "light");
+if (currentTheme === "dark") {
+    document.documentElement.classList.add("dark");
+    themeSwitch.checked = true;
+    themeText.innerText = "Dark Mode";
+} else {
+    document.documentElement.classList.remove("dark");
+    themeSwitch.checked = false;
+    themeText.innerText = "Light Mode";
+}
+
+themeSwitch.addEventListener("change", () => {
+    if (themeSwitch.checked) {
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("fob_theme", "dark");
+        themeText.innerText = "Dark Mode";
+    } else {
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem("fob_theme", "light");
+        themeText.innerText = "Light Mode";
+    }
+});
+</script>
 <script src="admin.js"></script>
 </body>
 </html>

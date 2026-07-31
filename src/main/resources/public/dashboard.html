@@ -21,13 +21,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased flex h-screen overflow-hidden">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans antialiased flex h-screen overflow-hidden transition-colors duration-200">
 
     <!-- SIDEBAR NAVIGATION -->
-    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between hidden md:flex">
+    <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between hidden md:flex">
         <div>
             <!-- Brand Header (Logo Only) -->
-            <div class="h-20 flex flex-col items-center justify-center px-6 border-b border-slate-800">
+            <div class="h-20 flex flex-col items-center justify-center px-6 border-b border-slate-200 dark:border-slate-800">
                 <img src="/images/logo.png" alt="Company Logo" class="h-10 w-auto object-contain">
             </div>
 
@@ -37,23 +37,23 @@
                     <i class="fa-solid fa-chart-line w-5"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="admin.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="admin.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-shield-halved w-5"></i>
                     <span>Admin</span>
                 </a>
-                <a href="logs.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="logs.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-terminal w-5"></i>
                     <span>Logs</span>
                 </a>
-                <a href="documentation.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="documentation.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-book w-5"></i>
                     <span>Documentation</span>
                 </a>
-                <a href="about.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="about.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-circle-info w-5"></i>
                     <span>About</span>
                 </a>
-                <a href="settings.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="settings.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-gear w-5"></i>
                     <span>Settings</span>
                 </a>
@@ -61,15 +61,15 @@
         </div>
 
         <!-- System Theme Profile -->
-        <div class="p-4 border-t border-slate-800">
-            <div class="flex items-center justify-between px-3 py-2.5 rounded-lg bg-slate-950/50 border border-slate-800/80">
+        <div class="p-4 border-t border-slate-200 dark:border-slate-800">
+            <div class="flex items-center justify-between px-3 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800/80">
                 <div class="flex items-center space-x-3">
                     <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span class="text-xs font-medium text-slate-300">Dark Mode</span>
+                    <span id="themeText" class="text-xs font-medium text-slate-700 dark:text-slate-300">Dark Mode</span>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="themeSwitch" class="sr-only peer" checked>
-                    <div class="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand-blue"></div>
+                    <input type="checkbox" id="themeSwitch" class="sr-only peer">
+                    <div class="w-8 h-4 bg-slate-300 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand-blue"></div>
                 </label>
             </div>
         </div>
@@ -79,15 +79,15 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Navbar -->
-        <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 z-10">
+        <header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 z-10">
             <div class="flex items-center space-x-4">
-                <h1 class="text-lg font-semibold text-slate-100">Real-time Website & SSL Health</h1>
-                <span class="text-xs text-slate-400 hidden sm:inline" id="autoRefreshLabel">Auto-refresh every 30 seconds</span>
+                <h1 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Real-time Website & SSL Health</h1>
+                <span class="text-xs text-slate-500 dark:text-slate-400 hidden sm:inline" id="autoRefreshLabel">Auto-refresh every 30 seconds</span>
             </div>
 
             <div class="flex items-center space-x-4">
-                <span id="lastUpdated" class="text-xs text-slate-400 hidden lg:inline">Last updated: —</span>
-                <button id="refreshBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-2 border border-slate-700">
+                <span id="lastUpdated" class="text-xs text-slate-500 dark:text-slate-400 hidden lg:inline">Last updated: —</span>
+                <button id="refreshBtn" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-2 border border-slate-200 dark:border-slate-700">
                     <i class="fa-solid fa-rotate"></i>
                     <span>Refresh Now</span>
                 </button>
@@ -99,22 +99,22 @@
             
             <!-- Metrics Cards -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
                     <div class="flex justify-between items-start">
                         <div>
-                            <p class="text-xs font-medium text-slate-400 uppercase">ONLINE TARGETS</p>
-                            <h3 id="upCount" class="text-3xl font-bold text-emerald-400 mt-1">0</h3>
+                            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">ONLINE TARGETS</p>
+                            <h3 id="upCount" class="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">0</h3>
                         </div>
-                        <div class="p-2.5 bg-emerald-500/10 rounded-lg text-emerald-400 border border-emerald-500/20">
+                        <div class="p-2.5 bg-emerald-500/10 rounded-lg text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                             <i class="fa-solid fa-circle-check text-lg"></i>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
                     <div class="flex justify-between items-start">
                         <div>
-                            <p class="text-xs font-medium text-slate-400 uppercase">OFFLINE TARGETS</p>
+                            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">OFFLINE TARGETS</p>
                             <h3 id="downCount" class="text-3xl font-bold text-brand-red mt-1">0</h3>
                         </div>
                         <div class="p-2.5 bg-brand-red/10 rounded-lg text-brand-red border border-brand-red/20">
@@ -123,10 +123,10 @@
                     </div>
                 </div>
 
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
                     <div class="flex justify-between items-start">
                         <div>
-                            <p class="text-xs font-medium text-slate-400 uppercase">AVG LATENCY</p>
+                            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">AVG LATENCY</p>
                             <h3 id="avgResponse" class="text-3xl font-bold text-brand-blue mt-1">0 ms</h3>
                         </div>
                         <div class="p-2.5 bg-brand-blue/10 rounded-lg text-brand-blue border border-brand-blue/20">
@@ -135,13 +135,13 @@
                     </div>
                 </div>
 
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
                     <div class="flex justify-between items-start">
                         <div>
-                            <p class="text-xs font-medium text-slate-400 uppercase">AVG SSL VALIDITY</p>
-                            <h3 id="avgSSL" class="text-3xl font-bold text-purple-400 mt-1">0 Days</h3>
+                            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">AVG SSL VALIDITY</p>
+                            <h3 id="avgSSL" class="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-1">0 Days</h3>
                         </div>
-                        <div class="p-2.5 bg-purple-500/10 rounded-lg text-purple-400 border border-purple-500/20">
+                        <div class="p-2.5 bg-purple-500/10 rounded-lg text-purple-600 dark:text-purple-400 border border-purple-500/20">
                             <i class="fa-solid fa-shield-halved text-lg"></i>
                         </div>
                     </div>
@@ -149,18 +149,18 @@
             </div>
 
             <!-- Monitored Endpoints View-Only Table -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
-                <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center">
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
                     <div>
-                        <h2 class="text-sm font-semibold text-slate-200">Monitored Infrastructure Registry</h2>
-                        <p class="text-xs text-slate-400">Read-only view of real-time target endpoints, response metrics, and SSL certificates.</p>
+                        <h2 class="text-sm font-semibold text-slate-900 dark:text-slate-200">Monitored Infrastructure Registry</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Read-only view of real-time target endpoints, response metrics, and SSL certificates.</p>
                     </div>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-xs">
                         <thead>
-                            <tr class="bg-slate-950/50 text-slate-400 uppercase tracking-wider border-b border-slate-800 font-mono">
+                            <tr class="bg-slate-100 dark:bg-slate-950/50 text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 font-mono">
                                 <th class="py-3 px-6">Target Endpoint</th>
                                 <th class="py-3 px-6">Category / Tags</th>
                                 <th class="py-3 px-6">Uptime Status</th>
@@ -170,14 +170,14 @@
                                 <th class="py-3 px-6 text-right">Actions / Renewal</th>
                             </tr>
                         </thead>
-                        <tbody id="dashboardTableBody" class="divide-y divide-slate-800/60 font-medium text-slate-300"></tbody>
+                        <tbody id="dashboardTableBody" class="divide-y divide-slate-200 dark:divide-slate-800/60 font-medium text-slate-700 dark:text-slate-300"></tbody>
                     </table>
                 </div>
             </div>
         </main>
 
         <!-- Footer -->
-        <footer class="h-10 bg-slate-900 border-t border-slate-800 flex items-center justify-center px-6 text-xs text-slate-500 font-mono">
+        <footer class="h-10 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-center px-6 text-xs text-slate-500 font-mono">
             Developer: Femi Adeyemi for FOB IT &nbsp; v1.0.2
         </footer>
     </div>
@@ -187,8 +187,30 @@ const API_BASE = "";
 
 // Theme Switch Logic
 const themeSwitch = document.getElementById("themeSwitch");
+const themeText = document.getElementById("themeText");
+
+// Initialize theme state based on localStorage or default HTML state
+const currentTheme = localStorage.getItem("fob_theme") || (document.documentElement.classList.contains("dark") ? "dark" : "light");
+if (currentTheme === "dark") {
+    document.documentElement.classList.add("dark");
+    themeSwitch.checked = true;
+    themeText.innerText = "Dark Mode";
+} else {
+    document.documentElement.classList.remove("dark");
+    themeSwitch.checked = false;
+    themeText.innerText = "Light Mode";
+}
+
 themeSwitch.addEventListener("change", () => {
-    document.body.classList.toggle("dark", themeSwitch.checked);
+    if (themeSwitch.checked) {
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("fob_theme", "dark");
+        themeText.innerText = "Dark Mode";
+    } else {
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem("fob_theme", "light");
+        themeText.innerText = "Light Mode";
+    }
 });
 
 function formatTime(ts) {
@@ -211,7 +233,7 @@ async function loadDashboard() {
         let up = 0, down = 0, totalResp = 0, totalSSL = 0, sslCount = 0;
 
         if (!Array.isArray(urls) || urls.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-500 italic">No active targets found. Add targets via the Admin panel.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-400 dark:text-slate-500 italic">No active targets found. Add targets via the Admin panel.</td></tr>`;
         }
 
         urls.forEach((row) => {
@@ -224,14 +246,14 @@ async function loadDashboard() {
             }
 
             const tagsHtml = (row.tags || []).map(t => 
-                `<span class="bg-slate-800 px-2 py-0.5 rounded text-[10px] text-slate-400 border border-slate-700 mr-1">${t}</span>`
+                `<span class="bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] text-slate-700 dark:text-slate-400 border border-slate-300 dark:border-slate-700 mr-1">${t}</span>`
             ).join("");
 
             const statusBadge = row.isUp
-                ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>UP</span>`
+                ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 mr-1.5 animate-pulse"></span>UP</span>`
                 : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-brand-red/10 text-brand-red border border-brand-red/20"><span class="w-1.5 h-1.5 rounded-full bg-brand-red mr-1.5"></span>DOWN</span>`;
 
-            let actionCell = `<span class="text-slate-500 italic">Valid</span>`;
+            let actionCell = `<span class="text-slate-400 dark:text-slate-500 italic">Valid</span>`;
             if (row.sslDays >= 0 && row.sslDays <= 14) {
                 const matchingPortal = portals.find(p => p.domainPattern && row.url.includes(p.domainPattern));
                 const renewalUrl = matchingPortal ? matchingPortal.renewalUrl : (row.renewalUrl || "https://digicert.com/ssl-certificate-renewal");
@@ -243,14 +265,14 @@ async function loadDashboard() {
                         <span>Renew SSL</span>
                     </a>`;
             } else if (row.sslDays < 0) {
-                actionCell = `<span class="text-slate-500 italic">N/A</span>`;
+                actionCell = `<span class="text-slate-400 dark:text-slate-500 italic">N/A</span>`;
             }
 
             let sslDisplay = "";
-            let sslClass = "text-slate-300";
+            let sslClass = "text-slate-700 dark:text-slate-300";
             if (row.sslDays < 0) {
                 sslDisplay = "N/A (HTTP)";
-                sslClass = "text-slate-500 italic";
+                sslClass = "text-slate-400 dark:text-slate-500 italic";
             } else if (row.sslDays <= 14) {
                 sslDisplay = row.sslDays + " Days " + (row.sslDays <= 0 ? "(EXPIRED)" : "");
                 sslClass = "text-brand-red font-bold";
@@ -259,11 +281,11 @@ async function loadDashboard() {
             }
 
             tbody.innerHTML += `
-                <tr class="hover:bg-slate-800/40 transition">
-                    <td class="py-3.5 px-6 font-mono text-slate-100 font-medium">${row.url}</td>
-                    <td class="py-3.5 px-6"><span class="text-slate-300 font-semibold mr-2">${row.category || "—"}</span> ${tagsHtml}</td>
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
+                    <td class="py-3.5 px-6 font-mono text-slate-900 dark:text-slate-100 font-medium">${row.url}</td>
+                    <td class="py-3.5 px-6"><span class="text-slate-800 dark:text-slate-300 font-semibold mr-2">${row.category || "—"}</span> ${tagsHtml}</td>
                     <td class="py-3.5 px-6">${statusBadge}</td>
-                    <td class="py-3.5 px-6 text-slate-400 font-mono">${formatTime(row.lastChecked)}</td>
+                    <td class="py-3.5 px-6 text-slate-500 dark:text-slate-400 font-mono">${formatTime(row.lastChecked)}</td>
                     <td class="py-3.5 px-6 font-mono">${row.responseTime ?? 0} ms</td>
                     <td class="py-3.5 px-6 font-mono ${sslClass}">${sslDisplay}</td>
                     <td class="py-3.5 px-6 text-right">${actionCell}</td>

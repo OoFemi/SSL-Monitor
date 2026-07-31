@@ -6,6 +6,13 @@
     <title>FOB SSL Monitor — About</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+        // Immediately apply saved theme to prevent flash of wrong theme on load
+        if (localStorage.getItem("fob_theme") === "light") {
+            document.documentElement.classList.remove("dark");
+        } else {
+            document.documentElement.classList.add("dark");
+        }
+
         tailwind.config = {
             darkMode: 'class',
             theme: {
@@ -20,7 +27,6 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Custom clean scrollbar styling moved to document root so it anchors to the far right edge of the window viewport */
         html {
             overflow-y: scroll;
         }
@@ -28,42 +34,56 @@
             width: 8px;
         }
         ::-webkit-scrollbar-track {
+            background: #f8fafc;
+        }
+        .dark ::-webkit-scrollbar-track {
             background: #020617;
         }
         ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
             background: #334155;
             border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
             background: #475569;
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased flex h-screen overflow-hidden">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans antialiased flex h-screen overflow-hidden transition-colors duration-200">
 
     <!-- SIDEBAR NAVIGATION -->
-    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between hidden md:flex shrink-0">
+    <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between hidden md:flex shrink-0">
         <div>
-            <!-- Brand Header -->
-            <div class="h-16 flex items-center px-6 border-b border-slate-800 overflow-hidden">
-                <img src="/images/logo.png" alt="Company Logo" class="h-7 max-w-[130px] w-auto object-contain">
+            <!-- Brand Header (Centered Vertical Stack) -->
+            <div class="h-24 flex flex-col items-center justify-center px-4 border-b border-slate-200 dark:border-slate-800 text-center space-y-1.5">
+                <img src="/images/logo.png" alt="Company Logo" class="h-8 w-auto object-contain">
+                <div>
+                    <span class="font-bold tracking-wide text-xs block text-slate-900 dark:text-slate-200">FOB SSL Monitor</span>
+                    <span class="text-[9px] text-brand-blue font-mono uppercase tracking-widest block">v1.0.2 Enterprise</span>
+                </div>
             </div>
 
             <!-- Navigation Links -->
             <nav class="p-4 space-y-1">
-                <a href="dashboard.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="dashboard.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-chart-line w-5"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="admin.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="admin.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-shield-halved w-5"></i>
                     <span>Admin</span>
                 </a>
-                <a href="logs.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="logs.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-terminal w-5"></i>
                     <span>Logs</span>
                 </a>
-                <a href="documentation.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="documentation.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-book w-5"></i>
                     <span>Documentation</span>
                 </a>
@@ -71,7 +91,7 @@
                     <i class="fa-solid fa-circle-info w-5"></i>
                     <span>About</span>
                 </a>
-                <a href="settings.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="settings.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-gear w-5"></i>
                     <span>Settings</span>
                 </a>
@@ -79,97 +99,117 @@
         </div>
 
         <!-- System Theme Profile -->
-        <div class="p-4 border-t border-slate-800">
-            <div class="flex items-center justify-between px-3 py-2.5 rounded-lg bg-slate-950/50 border border-slate-800/80">
+        <div class="p-4 border-t border-slate-200 dark:border-slate-800">
+            <div class="flex items-center justify-between px-3 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800/80">
                 <div class="flex items-center space-x-3">
                     <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span class="text-xs font-medium text-slate-300">Dark Mode</span>
+                    <span id="themeText" class="text-xs font-medium text-slate-700 dark:text-slate-300">Dark Mode</span>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="themeSwitch" class="sr-only peer" checked>
-                    <div class="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand-blue"></div>
+                    <input type="checkbox" id="themeSwitch" class="sr-only peer">
+                    <div class="w-8 h-4 bg-slate-300 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand-blue"></div>
                 </label>
             </div>
         </div>
     </aside>
 
     <!-- MAIN CONTENT AREA -->
-    <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Navbar -->
-        <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 z-10 shrink-0">
+        <header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 z-10 shrink-0">
             <div class="flex items-center space-x-4">
-                <h1 class="text-lg font-semibold text-slate-100">About the Application</h1>
+                <h1 class="text-lg font-semibold text-slate-900 dark:text-slate-100">About the Application</h1>
             </div>
         </header>
 
-        <!-- Viewport / Content (Scrollable at the window/body level so the scrollbar anchors to the far right screen edge) -->
-        <div class="flex-1 overflow-y-auto flex flex-col justify-between">
-            <main class="w-full flex justify-center p-8">
-                <div class="w-full max-w-4xl space-y-8">
+        <!-- Viewport / Content -->
+        <main class="flex-1 overflow-y-auto p-8 flex justify-center">
+            <div class="w-full max-w-4xl space-y-8">
+                
+                <!-- About Hero Card -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 shadow-xl text-center space-y-4">
+                    <div class="inline-flex p-4 bg-brand-blue/10 text-brand-blue rounded-2xl border border-brand-blue/20">
+                        <i class="fa-solid fa-shield-halved text-3xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">FOB SSL & Infrastructure Monitor</h2>
+                    <p class="text-brand-blue font-mono text-xs uppercase tracking-widest">Enterprise Edition v1.0.2</p>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm max-w-xl mx-auto leading-relaxed">
+                        Designed and built to guarantee high availability, continuous response tracking, and automated lifecycle security alerts for critical enterprise web targets.
+                    </p>
+                </div>
+
+                <!-- Developer & Specs Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     
-                    <!-- About Hero Card -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-xl text-center space-y-4">
-                        <div class="inline-flex p-4 bg-brand-blue/10 text-brand-blue rounded-2xl border border-brand-blue/20">
-                            <i class="fa-solid fa-shield-halved text-3xl"></i>
-                        </div>
-                        <h2 class="text-2xl font-bold text-slate-100">FOB SSL & Infrastructure Monitor</h2>
-                        <p class="text-brand-blue font-mono text-xs uppercase tracking-widest">Enterprise Edition v1.0.2</p>
-                        <p class="text-slate-400 text-sm max-w-xl mx-auto leading-relaxed">
-                            Designed and built to guarantee high availability, continuous response tracking, and automated lifecycle security alerts for critical enterprise web targets.
-                        </p>
+                    <!-- Developer Card -->
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-4 shadow-sm">
+                        <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-200 uppercase tracking-wider font-mono border-b border-slate-200 dark:border-slate-800 pb-2">System Ownership</h3>
+                        <ul class="space-y-3 text-xs text-slate-700 dark:text-slate-300">
+                            <li class="flex justify-between">
+                                <span class="text-slate-500 dark:text-slate-400">Organization:</span>
+                                <span class="font-semibold text-slate-900 dark:text-slate-100">FOB IT</span>
+                            </li>
+                            <li class="flex justify-between">
+                                <span class="text-slate-500 dark:text-slate-400">Lead Developer:</span>
+                                <span class="font-semibold text-slate-900 dark:text-slate-100">Femi Adeyemi</span>
+                            </li>
+                            <li class="flex justify-between">
+                                <span class="text-slate-500 dark:text-slate-400">Release Cycle:</span>
+                                <span class="font-mono text-brand-blue">2026 Production Build</span>
+                            </li>
+                        </ul>
                     </div>
 
-                    <!-- Developer & Specs Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        
-                        <!-- Developer Card -->
-                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-                            <h3 class="text-sm font-semibold text-slate-200 uppercase tracking-wider font-mono border-b border-slate-800 pb-2">System Ownership</h3>
-                            <ul class="space-y-3 text-xs text-slate-300">
-                                <li class="flex justify-between">
-                                    <span class="text-slate-400">Organization:</span>
-                                    <span class="font-semibold text-slate-100">FOB IT</span>
-                                </li>
-                                <li class="flex justify-between">
-                                    <span class="text-slate-400">Lead Developer:</span>
-                                    <span class="font-semibold text-slate-100">Femi Adeyemi</span>
-                                </li>
-                                <li class="flex justify-between">
-                                    <span class="text-slate-400">Release Cycle:</span>
-                                    <span class="font-mono text-brand-blue">2026 Production Build</span>
-                                </li>
-                            </ul>
+                    <!-- Technical Stack Card -->
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-4 shadow-sm">
+                        <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-200 uppercase tracking-wider font-mono border-b border-slate-200 dark:border-slate-800 pb-2">Architecture Stack</h3>
+                        <div class="flex flex-wrap gap-2 pt-1">
+                            <span class="bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">Java</span>
+                            <span class="bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">Javalin Framework</span>
+                            <span class="bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">Tailwind CSS</span>
+                            <span class="bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">FontAwesome</span>
+                            <span class="bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">Docker Compatible</span>
                         </div>
-
-                        <!-- Technical Stack Card -->
-                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-                            <h3 class="text-sm font-semibold text-slate-200 uppercase tracking-wider font-mono border-b border-slate-800 pb-2">Architecture Stack</h3>
-                            <div class="flex flex-wrap gap-2 pt-1">
-                                <span class="bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-300 border border-slate-700">Java</span>
-                                <span class="bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-300 border border-slate-700">Javalin Framework</span>
-                                <span class="bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-300 border border-slate-700">Tailwind CSS</span>
-                                <span class="bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-300 border border-slate-700">FontAwesome</span>
-                                <span class="bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-300 border border-slate-700">Docker Compatible</span>
-                            </div>
-                        </div>
-
                     </div>
 
                 </div>
-            </main>
 
-            <!-- Footer -->
-            <footer class="h-10 bg-slate-900 border-t border-slate-800 flex items-center justify-center px-6 text-xs text-slate-500 font-mono shrink-0">
-                Developer: Femi Adeyemi for FOB IT  v1.0.2
-            </footer>
-        </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="h-10 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-center px-6 text-xs text-slate-500 font-mono shrink-0">
+            Developer: Femi Adeyemi for FOB IT  v1.0.2
+        </footer>
     </div>
 
 <script>
+// Theme Switch Sync & Handler
 const themeSwitch = document.getElementById("themeSwitch");
+const themeText = document.getElementById("themeText");
+
+const currentTheme = localStorage.getItem("fob_theme") || (document.documentElement.classList.contains("dark") ? "dark" : "light");
+if (currentTheme === "dark") {
+    document.documentElement.classList.add("dark");
+    themeSwitch.checked = true;
+    if (themeText) themeText.innerText = "Dark Mode";
+} else {
+    document.documentElement.classList.remove("dark");
+    themeSwitch.checked = false;
+    if (themeText) themeText.innerText = "Light Mode";
+}
+
 themeSwitch.addEventListener("change", () => {
-    document.body.classList.toggle("dark", themeSwitch.checked);
+    if (themeSwitch.checked) {
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("fob_theme", "dark");
+        if (themeText) themeText.innerText = "Dark Mode";
+    } else {
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem("fob_theme", "light");
+        if (themeText) themeText.innerText = "Light Mode";
+    }
 });
 </script>
 </body>

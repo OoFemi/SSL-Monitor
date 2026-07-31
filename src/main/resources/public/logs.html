@@ -6,6 +6,13 @@
     <title>FOB SSL Monitor — System Logs</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+        // Immediately apply saved theme to prevent flash of wrong theme on load
+        if (localStorage.getItem("fob_theme") === "light") {
+            document.documentElement.classList.remove("dark");
+        } else {
+            document.documentElement.classList.add("dark");
+        }
+
         tailwind.config = {
             darkMode: 'class',
             theme: {
@@ -19,21 +26,49 @@
         }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html {
+            overflow-y: scroll;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f8fafc;
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: #020617;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased flex h-screen overflow-hidden">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans antialiased flex h-screen overflow-hidden transition-colors duration-200">
 
     <!-- SIDEBAR NAVIGATION -->
-    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between hidden md:flex">
+    <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between hidden md:flex shrink-0">
         <div>
-            <div class="h-20 flex items-center px-6 border-b border-slate-800 overflow-hidden">
+            <div class="h-20 flex items-center px-6 border-b border-slate-200 dark:border-slate-800 overflow-hidden">
                 <img src="/images/logo.png" alt="Company Logo" class="h-10 w-auto object-contain flex-shrink-0">
             </div>
             <nav class="p-4 space-y-1">
-                <a href="dashboard.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="dashboard.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-chart-line w-5"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="admin.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="admin.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-shield-halved w-5"></i>
                     <span>Admin</span>
                 </a>
@@ -41,29 +76,29 @@
                     <i class="fa-solid fa-terminal w-5"></i>
                     <span>Logs</span>
                 </a>
-                <a href="documentation.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="documentation.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-book w-5"></i>
                     <span>Documentation</span>
                 </a>
-                <a href="about.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="about.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-circle-info w-5"></i>
                     <span>About</span>
                 </a>
-                <a href="settings.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="settings.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-gear w-5"></i>
                     <span>Settings</span>
                 </a>
             </nav>
         </div>
-        <div class="p-4 border-t border-slate-800">
-            <div class="flex items-center justify-between px-3 py-2.5 rounded-lg bg-slate-950/50 border border-slate-800/80">
+        <div class="p-4 border-t border-slate-200 dark:border-slate-800">
+            <div class="flex items-center justify-between px-3 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800/80">
                 <div class="flex items-center space-x-3">
                     <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span class="text-xs font-medium text-slate-300">Dark Mode</span>
+                    <span id="themeText" class="text-xs font-medium text-slate-700 dark:text-slate-300">Dark Mode</span>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="themeSwitch" class="sr-only peer" checked>
-                    <div class="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand-blue"></div>
+                    <input type="checkbox" id="themeSwitch" class="sr-only peer">
+                    <div class="w-8 h-4 bg-slate-300 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand-blue"></div>
                 </label>
             </div>
         </div>
@@ -71,18 +106,18 @@
 
     <!-- MAIN CONTENT -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 z-10">
+        <header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 z-10 shrink-0">
             <div class="flex items-center space-x-4">
                 <div class="flex flex-col">
                     <div class="flex items-center space-x-2">
-                        <h1 class="text-sm font-bold text-slate-100 tracking-wide">FOB SSL Monitor</h1>
+                        <h1 class="text-sm font-bold text-slate-900 dark:text-slate-100 tracking-wide">FOB SSL Monitor</h1>
                         <span class="text-[9px] bg-brand-blue/10 text-brand-blue border border-brand-blue/20 px-1.5 py-0.5 rounded font-mono uppercase">v1.0.2 Enterprise</span>
                     </div>
-                    <span class="text-[11px] text-slate-400">System Execution Logs & Event Stream</span>
+                    <span class="text-[11px] text-slate-500 dark:text-slate-400">System Execution Logs & Event Stream</span>
                 </div>
             </div>
             <div class="flex items-center space-x-3">
-                <button onclick="clearLogs()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-2 border border-slate-700">
+                <button onclick="clearLogs()" class="bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-2 border border-slate-300 dark:border-slate-700 shadow-sm">
                     <i class="fa-solid fa-trash-can"></i>
                     <span>Clear Logs</span>
                 </button>
@@ -90,46 +125,69 @@
         </header>
 
         <main class="flex-1 overflow-y-auto p-6 space-y-6">
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl flex flex-col h-[calc(100vh-140px)]">
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-xl flex flex-col h-[calc(100vh-140px)]">
                 <div class="flex justify-between items-center mb-4">
                     <div>
-                        <h2 class="text-base font-semibold text-slate-100">Runtime Audit Stream</h2>
-                        <p class="text-xs text-slate-400">Real-time background polling events, SSL verification checks, and alerts.</p>
+                        <h2 class="text-base font-semibold text-slate-900 dark:text-slate-100">Runtime Audit Stream</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Real-time background polling events, SSL verification checks, and alerts.</p>
                     </div>
-                    <span class="text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full"><i class="fa-solid fa-circle text-[8px] mr-1.5 animate-pulse"></i>Live Streaming</span>
+                    <span class="text-xs font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full"><i class="fa-solid fa-circle text-[8px] mr-1.5 animate-pulse"></i>Live Streaming</span>
                 </div>
-                <div id="logContainer" class="flex-1 bg-slate-950 border border-slate-800 rounded-lg p-4 font-mono text-xs text-slate-300 overflow-y-auto space-y-2">
-                    <div class="text-slate-500 italic">[SYSTEM] Initializing logging daemon... Ready for polling events.</div>
+                <div id="logContainer" class="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-4 font-mono text-xs text-slate-700 dark:text-slate-300 overflow-y-auto space-y-2">
+                    <div class="text-slate-400 dark:text-slate-500 italic">[SYSTEM] Initializing logging daemon... Ready for polling events.</div>
                 </div>
             </div>
         </main>
 
-        <footer class="h-10 bg-slate-900 border-t border-slate-800 flex items-center justify-between px-6 text-xs text-slate-500 font-mono">
+        <footer class="h-10 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 text-xs text-slate-500 font-mono shrink-0">
             <span>Femi Adeyemi for FOB IT</span>
             <span>v1.0.2 ENTERPRISE</span>
         </footer>
     </div>
 
 <script>
+// Theme Switch Sync & Handler
 const themeSwitch = document.getElementById("themeSwitch");
-themeSwitch.addEventListener("change", () => document.body.classList.toggle("dark", themeSwitch.checked));
+const themeText = document.getElementById("themeText");
+
+const currentTheme = localStorage.getItem("fob_theme") || (document.documentElement.classList.contains("dark") ? "dark" : "light");
+if (currentTheme === "dark") {
+    document.documentElement.classList.add("dark");
+    themeSwitch.checked = true;
+    if (themeText) themeText.innerText = "Dark Mode";
+} else {
+    document.documentElement.classList.remove("dark");
+    themeSwitch.checked = false;
+    if (themeText) themeText.innerText = "Light Mode";
+}
+
+themeSwitch.addEventListener("change", () => {
+    if (themeSwitch.checked) {
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("fob_theme", "dark");
+        if (themeText) themeText.innerText = "Dark Mode";
+    } else {
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem("fob_theme", "light");
+        if (themeText) themeText.innerText = "Light Mode";
+    }
+});
 
 function appendLog(level, message) {
     const container = document.getElementById("logContainer");
     const timestamp = new Date().toLocaleTimeString();
-    let colorClass = "text-slate-300";
+    let colorClass = "text-slate-700 dark:text-slate-300";
     if (level === "INFO") colorClass = "text-brand-blue";
-    if (level === "SUCCESS") colorClass = "text-emerald-400";
-    if (level === "WARN") colorClass = "text-amber-400";
+    if (level === "SUCCESS") colorClass = "text-emerald-600 dark:text-emerald-400";
+    if (level === "WARN") colorClass = "text-amber-500 dark:text-amber-400";
     if (level === "ERROR") colorClass = "text-brand-red";
 
-    container.innerHTML += `<div><span class="text-slate-500">[${timestamp}]</span> <span class="font-bold ${colorClass}">[${level}]</span> ${message}</div>`;
+    container.innerHTML += `<div><span class="text-slate-400 dark:text-slate-500">[${timestamp}]</span> <span class="font-bold ${colorClass}">[${level}]</span> ${message}</div>`;
     container.scrollTop = container.scrollHeight;
 }
 
 function clearLogs() {
-    document.getElementById("logContainerinnerHTML") = "";
-    document.getElementById("logContainer").innerHTML = `<div class="text-slate-500 italic">[SYSTEM] Log stream cleared.</div>`;
+    document.getElementById("logContainer").innerHTML = `<div class="text-slate-400 dark:text-slate-500 italic">[SYSTEM] Log stream cleared.</div>`;
 }
 
 // Simulate periodic logging events matching monitoring loop
