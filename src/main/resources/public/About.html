@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FOB SSL Monitor — Event & Alert Logs</title>
+    <title>FOB SSL Monitor — About</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -11,7 +11,7 @@
             theme: {
                 extend: {
                     colors: {
-                        brand: { blue: '#0066ff', red: '#ff3333' },
+                        brand: { blue: '#0066ff', red: '#ff3333', hoverBlue: '#0052cc' },
                         slate: { 850: '#151f32', 900: '#0f172a', 950: '#020617' }
                     }
                 }
@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased flex h-screen overflow-hidden">
-    
+
     <!-- SIDEBAR NAVIGATION -->
     <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between hidden md:flex">
         <div>
@@ -44,7 +44,7 @@
                     <i class="fa-solid fa-shield-halved w-5"></i>
                     <span>Admin</span>
                 </a>
-                <a href="logs.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg bg-brand-blue/10 text-brand-blue font-medium text-sm border border-brand-blue/20">
+                <a href="logs.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
                     <i class="fa-solid fa-terminal w-5"></i>
                     <span>Logs</span>
                 </a>
@@ -52,7 +52,7 @@
                     <i class="fa-solid fa-book w-5"></i>
                     <span>Documentation</span>
                 </a>
-                <a href="about.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                <a href="about.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg bg-brand-blue/10 text-brand-blue font-medium text-sm border border-brand-blue/20">
                     <i class="fa-solid fa-circle-info w-5"></i>
                     <span>About</span>
                 </a>
@@ -78,29 +78,67 @@
         </div>
     </aside>
 
-    <!-- MAIN CONTAINER -->
+    <!-- MAIN CONTENT AREA -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
-        <!-- Header -->
-        <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center px-6 justify-between z-10">
-            <h1 class="text-lg font-semibold text-slate-100">Audit & SSL Alert Logs</h1>
-            <button onclick="loadLogs()" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg border border-slate-700 text-slate-200 transition flex items-center space-x-2">
-                <i class="fa-solid fa-rotate"></i>
-                <span>Refresh Logs</span>
-            </button>
+        <!-- Top Navbar -->
+        <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 z-10">
+            <div class="flex items-center space-x-4">
+                <h1 class="text-lg font-semibold text-slate-100">About the Application</h1>
+            </div>
         </header>
 
-        <!-- Main Viewport -->
-        <main class="flex-1 overflow-y-auto p-6">
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
-                <div class="p-4 border-b border-slate-800 font-mono text-xs text-slate-400 flex justify-between items-center">
-                    <span>System Log Terminal Feed (SSL Renewals, Downtime Alerts & Threshold Triggers)</span>
-                    <span id="logCount" class="text-brand-blue font-semibold">0 entries loaded</span>
+        <!-- Viewport / Content -->
+        <main class="flex-1 overflow-y-auto p-8 space-y-8 max-w-4xl">
+            
+            <!-- About Hero Card -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-xl text-center space-y-4">
+                <div class="inline-flex p-4 bg-brand-blue/10 text-brand-blue rounded-2xl border border-brand-blue/20">
+                    <i class="fa-solid fa-shield-halved text-3xl"></i>
                 </div>
-                <div id="logConsole" class="p-4 font-mono text-xs space-y-2 h-[70vh] overflow-y-auto bg-slate-950/80">
-                    <!-- Dynamic logs -->
-                </div>
+                <h2 class="text-2xl font-bold text-slate-100">FOB SSL & Infrastructure Monitor</h2>
+                <p class="text-brand-blue font-mono text-xs uppercase tracking-widest">Enterprise Edition v1.0.2</p>
+                <p class="text-slate-400 text-sm max-w-xl mx-auto leading-relaxed">
+                    Designed and built to guarantee high availability, continuous response tracking, and automated lifecycle security alerts for critical enterprise web targets.
+                </p>
             </div>
+
+            <!-- Developer & Specs Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- Developer Card -->
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-200 uppercase tracking-wider font-mono border-b border-slate-800 pb-2">System Ownership</h3>
+                    <ul class="space-y-3 text-xs text-slate-300">
+                        <li class="flex justify-between">
+                            <span class="text-slate-400">Organization:</span>
+                            <span class="font-semibold text-slate-100">FOB IT</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-slate-400">Lead Developer:</span>
+                            <span class="font-semibold text-slate-100">Femi Adeyemi</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-slate-400">Release Cycle:</span>
+                            <span class="font-mono text-brand-blue">2026 Production Build</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Technical Stack Card -->
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-200 uppercase tracking-wider font-mono border-b border-slate-800 pb-2">Architecture Stack</h3>
+                    <div class="flex flex-wrap gap-2 pt-1">
+                        <span class="bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-300 border border-slate-700">Java</span>
+                        <span class="bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-300 border border-slate-700">Javalin Framework</span>
+                        <span class="bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-300 border border-slate-700">Tailwind CSS</span>
+                        <span class="bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-300 border border-slate-700">FontAwesome</span>
+                        <span class="bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-300 border border-slate-700">Docker Compatible</span>
+                    </div>
+                </div>
+
+            </div>
+
         </main>
 
         <!-- Footer -->
@@ -110,52 +148,10 @@
     </div>
 
 <script>
-const API_BASE = "";
-
-// Theme Switch Logic
 const themeSwitch = document.getElementById("themeSwitch");
 themeSwitch.addEventListener("change", () => {
     document.body.classList.toggle("dark", themeSwitch.checked);
 });
-
-async function loadLogs() {
-    try {
-        const res = await fetch(`${API_BASE}/api/logs`);
-        const logs = await res.json();
-        const consoleDiv = document.getElementById("logConsole");
-        const logCountEl = document.getElementById("logCount");
-
-        if (!Array.isArray(logs) || logs.length === 0) {
-            consoleDiv.innerHTML = `<div class="text-slate-500 italic text-center py-6">No event or audit logs recorded yet.</div>`;
-            logCountEl.textContent = "0 entries loaded";
-            return;
-        }
-
-        logCountEl.textContent = `${logs.length} entries loaded`;
-        consoleDiv.innerHTML = logs.map(l => {
-            const timestampStr = l.timestamp ? new Date(l.timestamp).toISOString() : new Date().toISOString();
-            const typeClass = l.type === 'ALERT' 
-                ? 'text-brand-red font-bold' 
-                : l.type === 'RENEWAL' 
-                ? 'text-emerald-400 font-bold' 
-                : 'text-brand-blue font-semibold';
-
-            return `
-                <div class="flex items-start space-x-3 border-b border-slate-800/40 pb-1.5 hover:bg-slate-900/40 px-2 py-1 rounded transition">
-                    <span class="text-slate-500 whitespace-nowrap">[${timestampStr}]</span>
-                    <span class="${typeClass}">[${l.type || 'INFO'}]</span>
-                    <span class="text-slate-200 break-all">${l.message || ''}</span>
-                </div>
-            `;
-        }).join("");
-    } catch (e) {
-        console.error("Failed to fetch audit logs:", e);
-        document.getElementById("logConsole").innerHTML = `<div class="text-brand-red italic text-center py-6">Failed to retrieve system logs from server.</div>`;
-    }
-}
-
-loadLogs();
-setInterval(loadLogs, 10000);
 </script>
 </body>
 </html>

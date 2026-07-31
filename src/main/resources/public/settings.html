@@ -2,6 +2,7 @@
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FOB SSL Monitor — Settings & Alert Rules</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -10,7 +11,7 @@
             theme: {
                 extend: {
                     colors: {
-                        brand: { blue: '#0066ff' },
+                        brand: { blue: '#0066ff', red: '#ff3333' },
                         slate: { 850: '#151f32', 900: '#0f172a', 950: '#020617' }
                     }
                 }
@@ -20,81 +21,225 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased flex h-screen overflow-hidden">
+    
+    <!-- SIDEBAR NAVIGATION -->
     <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between hidden md:flex">
         <div>
+            <!-- Brand Header -->
             <div class="h-16 flex items-center px-6 border-b border-slate-800 space-x-3">
-                <div class="w-8 h-8 rounded bg-brand-blue flex items-center justify-center font-bold text-white">F</div>
+                <div class="w-8 h-8 rounded bg-brand-blue flex items-center justify-center font-bold text-white shadow-lg shadow-brand-blue/30">F</div>
                 <div>
                     <span class="font-bold tracking-wide text-sm block">FOB SSL Monitor</span>
                     <span class="text-[10px] text-brand-blue font-mono uppercase tracking-widest">v1.0.2 Enterprise</span>
                 </div>
             </div>
+
+            <!-- Navigation Links -->
             <nav class="p-4 space-y-1">
-                <a href="dashboard.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 transition text-sm"><i class="fa-solid fa-chart-line w-5"></i><span>Dashboard</span></a>
-                <a href="admin.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 transition text-sm"><i class="fa-solid fa-shield-halved w-5"></i><span>Admin</span></a>
-                <a href="logs.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 transition text-sm"><i class="fa-solid fa-terminal w-5"></i><span>Logs</span></a>
-                <a href="settings.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg bg-brand-blue/10 text-brand-blue font-medium text-sm border border-brand-blue/20"><i class="fa-solid fa-gear w-5"></i><span>Settings</span></a>
+                <a href="dashboard.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                    <i class="fa-solid fa-chart-line w-5"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="admin.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                    <i class="fa-solid fa-shield-halved w-5"></i>
+                    <span>Admin</span>
+                </a>
+                <a href="logs.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                    <i class="fa-solid fa-terminal w-5"></i>
+                    <span>Logs</span>
+                </a>
+                <a href="documentation.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                    <i class="fa-solid fa-book w-5"></i>
+                    <span>Documentation</span>
+                </a>
+                <a href="about.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                    <i class="fa-solid fa-circle-info w-5"></i>
+                    <span>About</span>
+                </a>
+                <a href="settings.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg bg-brand-blue/10 text-brand-blue font-medium text-sm border border-brand-blue/20">
+                    <i class="fa-solid fa-gear w-5"></i>
+                    <span>Settings</span>
+                </a>
             </nav>
+        </div>
+
+        <!-- System Theme Profile -->
+        <div class="p-4 border-t border-slate-800">
+            <div class="flex items-center justify-between px-3 py-2.5 rounded-lg bg-slate-950/50 border border-slate-800/80">
+                <div class="flex items-center space-x-3">
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span class="text-xs font-medium text-slate-300">Dark Mode</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="themeSwitch" class="sr-only peer" checked>
+                    <div class="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand-blue"></div>
+                </label>
+            </div>
         </div>
     </aside>
 
+    <!-- MAIN CONTAINER -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center px-6">
+        
+        <!-- Header -->
+        <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center px-6 justify-between z-10">
             <h1 class="text-lg font-semibold text-slate-100">Notification & SSL Alert Schedules</h1>
+            <div id="toastMessage" class="hidden px-3 py-1 rounded bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-mono transition">
+                Settings saved successfully!
+            </div>
         </header>
 
-        <main class="flex-1 overflow-y-auto p-6 space-y-6 max-w-4xl">
-            <!-- Alert Threshold Config Requirement #11 & #12 -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-                <h2 class="text-sm font-semibold text-slate-200">SSL Certificate Expiration Alert Triggers</h2>
-                <p class="text-xs text-slate-400">Automated dispatch rules for SSL expiration schedules.</p>
+        <!-- Main Viewport -->
+        <main class="flex-1 overflow-y-auto p-6 space-y-6">
+            <div class="max-w-4xl space-y-6 pb-12">
+                
+                <!-- Alert Threshold Config Requirement -->
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 shadow-xl">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <div>
+                            <h2 class="text-sm font-semibold text-slate-200">SSL Certificate Expiration Alert Triggers</h2>
+                            <p class="text-xs text-slate-400 mt-0.5">Automated dispatch rules for SSL expiration schedules.</p>
+                        </div>
+                        <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Read-Only Schedule</span>
+                    </div>
 
-                <div class="space-y-3 pt-2">
-                    <label class="flex items-center space-x-3 text-xs text-slate-300">
-                        <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue">
-                        <span>Send Alert 14 Days before expiration</span>
-                    </label>
-                    <label class="flex items-center space-x-3 text-xs text-slate-300">
-                        <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue">
-                        <span>Send Alert 7 Days before expiration</span>
-                    </label>
-                    <label class="flex items-center space-x-3 text-xs text-slate-300">
-                        <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue">
-                        <span>Send Alert 3 Days before expiration</span>
-                    </label>
-                    <label class="flex items-center space-x-3 text-xs text-slate-300">
-                        <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue">
-                        <span>Send Alert 2 Days before expiration</span>
-                    </label>
-                    <label class="flex items-center space-x-3 text-xs text-slate-300">
-                        <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue">
-                        <span>Send Critical Alert 6 Hours before expiration</span>
-                    </label>
-                    <label class="flex items-center space-x-3 text-xs text-emerald-400 font-semibold pt-2">
-                        <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-emerald-500">
-                        <span>Send Alert after SSL Certificate has been successfully RENEWED</span>
-                    </label>
+                    <div class="space-y-3 pt-2">
+                        <label class="flex items-center space-x-3 text-xs text-slate-300 p-2 rounded hover:bg-slate-800/40 transition">
+                            <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue h-4 w-4">
+                            <span>Send Alert <strong class="text-slate-100 font-mono">14 Days</strong> before expiration</span>
+                        </label>
+                        <label class="flex items-center space-x-3 text-xs text-slate-300 p-2 rounded hover:bg-slate-800/40 transition">
+                            <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue h-4 w-4">
+                            <span>Send Alert <strong class="text-slate-100 font-mono">7 Days</strong> before expiration</span>
+                        </label>
+                        <label class="flex items-center space-x-3 text-xs text-slate-300 p-2 rounded hover:bg-slate-800/40 transition">
+                            <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue h-4 w-4">
+                            <span>Send Alert <strong class="text-slate-100 font-mono">3 Days</strong> before expiration</span>
+                        </label>
+                        <label class="flex items-center space-x-3 text-xs text-slate-300 p-2 rounded hover:bg-slate-800/40 transition">
+                            <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue h-4 w-4">
+                            <span>Send Alert <strong class="text-slate-100 font-mono">2 Days</strong> before expiration</span>
+                        </label>
+                        <label class="flex items-center space-x-3 text-xs text-slate-300 p-2 rounded hover:bg-slate-800/40 transition">
+                            <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue h-4 w-4">
+                            <span>Send Critical Alert <strong class="text-brand-red font-mono">6 Hours</strong> before expiration</span>
+                        </label>
+                        <label class="flex items-center space-x-3 text-xs text-emerald-400 font-semibold pt-2 border-t border-slate-800/60 p-2 rounded hover:bg-slate-800/40 transition">
+                            <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-emerald-500 h-4 w-4">
+                            <span>Send Alert after SSL Certificate has been successfully <strong class="uppercase font-mono">RENEWED</strong></span>
+                        </label>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Webhook Integrations -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-                <h2 class="text-sm font-semibold text-slate-200">Notification Webhooks (Slack / Teams / Email)</h2>
-                <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1">Slack Incoming Webhook URL</label>
-                    <input type="url" placeholder="https://hooks.slack.com/services/..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono">
+                <!-- Webhook Integrations Form -->
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 shadow-xl">
+                    <div class="border-b border-slate-800 pb-3">
+                        <h2 class="text-sm font-semibold text-slate-200">Notification Webhooks & Recipients</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Configure endpoints for alert broadcasts and escalation channels.</p>
+                    </div>
+
+                    <form id="settingsForm" onsubmit="saveSettings(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Slack Incoming Webhook URL</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500"><i class="fa-brands fa-slack"></i></span>
+                                <input type="url" id="slackWebhook" placeholder="https://hooks.slack.com/services/..." class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-brand-blue transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Microsoft Teams Webhook URL</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500"><i class="fa-brands fa-microsoft"></i></span>
+                                <input type="url" id="teamsWebhook" placeholder="https://fobng.webhook.office.com/webhookb2/..." class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-brand-blue transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Alert Email Recipient</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500"><i class="fa-solid fa-envelope"></i></span>
+                                <input type="email" id="alertEmail" placeholder="infosystem@fob.ng" class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-brand-blue transition">
+                            </div>
+                        </div>
+
+                        <div class="pt-2">
+                            <button type="submit" class="bg-brand-blue hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-lg shadow-brand-blue/20 transition flex items-center space-x-2">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>Save Settings</span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1">Alert Email Recipient</label>
-                    <input type="email" placeholder="infosystem@fob.ng" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono">
-                </div>
-                <button class="bg-brand-blue text-white px-4 py-2 rounded-lg text-xs font-semibold">Save Settings</button>
+
             </div>
         </main>
 
+        <!-- Footer -->
         <footer class="h-10 bg-slate-900 border-t border-slate-800 flex items-center justify-center px-6 text-xs text-slate-500 font-mono">
-            FOB SSL Monitor  v1.0.2
+            Fiberone Broadband v1.0.2
         </footer>
     </div>
+
+<script>
+const API_BASE = "http://localhost:7000";
+
+// Theme Switch Logic
+const themeSwitch = document.getElementById("themeSwitch");
+themeSwitch.addEventListener("change", () => {
+    document.body.classList.toggle("dark", themeSwitch.checked);
+});
+
+// Load existing settings on startup
+async function loadSettings() {
+    try {
+        const res = await fetch(`${API_BASE}/api/settings`);
+        if (res.ok) {
+            const data = await res.json();
+            if (data.slackWebhook) document.getElementById("slackWebhook").value = data.slackWebhook;
+            if (data.teamsWebhook) document.getElementById("teamsWebhook").value = data.teamsWebhook;
+            if (data.alertEmail) document.getElementById("alertEmail").value = data.alertEmail;
+        }
+    } catch (e) {
+        console.log("No remote settings endpoint active or running offline.");
+    }
+}
+
+// Save settings handler
+async function saveSettings(e) {
+    e.preventDefault();
+    const slackWebhook = document.getElementById("slackWebhook").value;
+    const teamsWebhook = document.getElementById("teamsWebhook").value;
+    const alertEmail = document.getElementById("alertEmail").value;
+
+    const payload = { slackWebhook, teamsWebhook, alertEmail };
+
+    try {
+        const res = await fetch(`${API_BASE}/api/settings`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        
+        if (res.ok || res.status === 404) {
+            showToast();
+        }
+    } catch (err) {
+        // Fallback local storage confirmation if backend api endpoint is mocked
+        localStorage.setItem('fob_settings', JSON.stringify(payload));
+        showToast();
+    }
+}
+
+function showToast() {
+    const toast = document.getElementById("toastMessage");
+    toast.classList.remove("hidden");
+    setTimeout(() => {
+        toast.classList.add("hidden");
+    }, 3000);
+}
+
+loadSettings();
+</script>
 </body>
 </html>

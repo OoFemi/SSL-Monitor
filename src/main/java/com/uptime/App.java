@@ -51,6 +51,10 @@ public class App {
         app.post("/api/admin/add-url", StatusController::addTarget);
         app.put("/api/urls/{id}", StatusController::updateTarget);
         app.delete("/api/urls/{id}", StatusController::deleteTarget);
+        
+        // Added missing admin endpoint variants called by the frontend
+        app.delete("/api/admin/delete-url/{id}", StatusController::deleteTarget);
+        app.put("/api/admin/update-url/{id}", StatusController::updateTarget);
 
         // --- RENEWAL PORTALS ENDPOINTS ---
         app.get("/api/renewal-portals", StatusController::getRenewalPortals);
@@ -75,8 +79,11 @@ public class App {
             String sql = "CREATE TABLE IF NOT EXISTS targets (" +
                          "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                          "url TEXT NOT NULL, " +
+                         "category TEXT, " +
+                         "tags TEXT, " +
                          "status TEXT, " +
                          "latency INTEGER, " +
+                         "ssl_days INTEGER, " +
                          "last_checked TEXT)";
             stmt.execute(sql);
         } catch (SQLException e) {
