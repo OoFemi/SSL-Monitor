@@ -19,19 +19,34 @@
         }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom clean scrollbar styling moved to document root so it anchors to the far right edge of the window viewport */
+        html {
+            overflow-y: scroll;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #020617;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased flex h-screen overflow-hidden">
 
     <!-- SIDEBAR NAVIGATION -->
-    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between hidden md:flex">
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between hidden md:flex shrink-0">
         <div>
             <!-- Brand Header -->
-            <div class="h-16 flex items-center px-6 border-b border-slate-800 space-x-3">
-                <img src="/images/logo.png" alt="Company Logo" class="h-8 w-8 object-contain">
-                <div>
-                    <span class="font-bold tracking-wide text-sm block">FOB SSL Monitor</span>
-                    <span class="text-[10px] text-brand-blue font-mono uppercase tracking-widest">v1.0.2 Enterprise</span>
-                </div>
+            <div class="h-16 flex items-center px-6 border-b border-slate-800 overflow-hidden">
+                <img src="/images/logo.png" alt="Company Logo" class="h-7 max-w-[130px] w-auto object-contain">
             </div>
 
             <!-- Navigation Links -->
@@ -79,72 +94,76 @@
     </aside>
 
     <!-- MAIN CONTENT AREA -->
-    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+    <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         
         <!-- Top Navbar -->
-        <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 z-10">
+        <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 z-10 shrink-0">
             <div class="flex items-center space-x-4">
                 <h1 class="text-lg font-semibold text-slate-100">About the Application</h1>
             </div>
         </header>
 
-        <!-- Viewport / Content -->
-        <main class="flex-1 overflow-y-auto p-8 space-y-8 max-w-4xl">
-            
-            <!-- About Hero Card -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-xl text-center space-y-4">
-                <div class="inline-flex p-4 bg-brand-blue/10 text-brand-blue rounded-2xl border border-brand-blue/20">
-                    <i class="fa-solid fa-shield-halved text-3xl"></i>
-                </div>
-                <h2 class="text-2xl font-bold text-slate-100">FOB SSL & Infrastructure Monitor</h2>
-                <p class="text-brand-blue font-mono text-xs uppercase tracking-widest">Enterprise Edition v1.0.2</p>
-                <p class="text-slate-400 text-sm max-w-xl mx-auto leading-relaxed">
-                    Designed and built to guarantee high availability, continuous response tracking, and automated lifecycle security alerts for critical enterprise web targets.
-                </p>
-            </div>
-
-            <!-- Developer & Specs Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                <!-- Developer Card -->
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-                    <h3 class="text-sm font-semibold text-slate-200 uppercase tracking-wider font-mono border-b border-slate-800 pb-2">System Ownership</h3>
-                    <ul class="space-y-3 text-xs text-slate-300">
-                        <li class="flex justify-between">
-                            <span class="text-slate-400">Organization:</span>
-                            <span class="font-semibold text-slate-100">FOB IT</span>
-                        </li>
-                        <li class="flex justify-between">
-                            <span class="text-slate-400">Lead Developer:</span>
-                            <span class="font-semibold text-slate-100">Femi Adeyemi</span>
-                        </li>
-                        <li class="flex justify-between">
-                            <span class="text-slate-400">Release Cycle:</span>
-                            <span class="font-mono text-brand-blue">2026 Production Build</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Technical Stack Card -->
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-                    <h3 class="text-sm font-semibold text-slate-200 uppercase tracking-wider font-mono border-b border-slate-800 pb-2">Architecture Stack</h3>
-                    <div class="flex flex-wrap gap-2 pt-1">
-                        <span class="bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-300 border border-slate-700">Java</span>
-                        <span class="bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-300 border border-slate-700">Javalin Framework</span>
-                        <span class="bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-300 border border-slate-700">Tailwind CSS</span>
-                        <span class="bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-300 border border-slate-700">FontAwesome</span>
-                        <span class="bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-300 border border-slate-700">Docker Compatible</span>
+        <!-- Viewport / Content (Scrollable at the window/body level so the scrollbar anchors to the far right screen edge) -->
+        <div class="flex-1 overflow-y-auto flex flex-col justify-between">
+            <main class="w-full flex justify-center p-8">
+                <div class="w-full max-w-4xl space-y-8">
+                    
+                    <!-- About Hero Card -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-xl text-center space-y-4">
+                        <div class="inline-flex p-4 bg-brand-blue/10 text-brand-blue rounded-2xl border border-brand-blue/20">
+                            <i class="fa-solid fa-shield-halved text-3xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-100">FOB SSL & Infrastructure Monitor</h2>
+                        <p class="text-brand-blue font-mono text-xs uppercase tracking-widest">Enterprise Edition v1.0.2</p>
+                        <p class="text-slate-400 text-sm max-w-xl mx-auto leading-relaxed">
+                            Designed and built to guarantee high availability, continuous response tracking, and automated lifecycle security alerts for critical enterprise web targets.
+                        </p>
                     </div>
+
+                    <!-- Developer & Specs Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- Developer Card -->
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+                            <h3 class="text-sm font-semibold text-slate-200 uppercase tracking-wider font-mono border-b border-slate-800 pb-2">System Ownership</h3>
+                            <ul class="space-y-3 text-xs text-slate-300">
+                                <li class="flex justify-between">
+                                    <span class="text-slate-400">Organization:</span>
+                                    <span class="font-semibold text-slate-100">FOB IT</span>
+                                </li>
+                                <li class="flex justify-between">
+                                    <span class="text-slate-400">Lead Developer:</span>
+                                    <span class="font-semibold text-slate-100">Femi Adeyemi</span>
+                                </li>
+                                <li class="flex justify-between">
+                                    <span class="text-slate-400">Release Cycle:</span>
+                                    <span class="font-mono text-brand-blue">2026 Production Build</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Technical Stack Card -->
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+                            <h3 class="text-sm font-semibold text-slate-200 uppercase tracking-wider font-mono border-b border-slate-800 pb-2">Architecture Stack</h3>
+                            <div class="flex flex-wrap gap-2 pt-1">
+                                <span class="bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-300 border border-slate-700">Java</span>
+                                <span class="bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-300 border border-slate-700">Javalin Framework</span>
+                                <span class="bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-300 border border-slate-700">Tailwind CSS</span>
+                                <span class="bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-300 border border-slate-700">FontAwesome</span>
+                                <span class="bg-slate-800 px-2.5 py-1 rounded text-xs font-mono text-slate-300 border border-slate-700">Docker Compatible</span>
+                            </div>
+                        </div>
+
+                    </div>
+
                 </div>
+            </main>
 
-            </div>
-
-        </main>
-
-        <!-- Footer -->
-        <footer class="h-10 bg-slate-900 border-t border-slate-800 flex items-center justify-center px-6 text-xs text-slate-500 font-mono">
-            Developer: Femi Adeyemi for FOB IT  v1.0.2
-        </footer>
+            <!-- Footer -->
+            <footer class="h-10 bg-slate-900 border-t border-slate-800 flex items-center justify-center px-6 text-xs text-slate-500 font-mono shrink-0">
+                Developer: Femi Adeyemi for FOB IT  v1.0.2
+            </footer>
+        </div>
     </div>
 
 <script>

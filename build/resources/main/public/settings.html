@@ -19,19 +19,34 @@
         }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom clean scrollbar styling anchored to the far right edge of the screen */
+        html {
+            overflow-y: scroll;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #020617;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased flex h-screen overflow-hidden">
     
     <!-- SIDEBAR NAVIGATION -->
-    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between hidden md:flex">
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between hidden md:flex shrink-0">
         <div>
             <!-- Brand Header -->
-            <div class="h-16 flex items-center px-6 border-b border-slate-800 space-x-3">
-                <div class="w-8 h-8 rounded bg-brand-blue flex items-center justify-center font-bold text-white shadow-lg shadow-brand-blue/30">F</div>
-                <div>
-                    <span class="font-bold tracking-wide text-sm block">FOB SSL Monitor</span>
-                    <span class="text-[10px] text-brand-blue font-mono uppercase tracking-widest">v1.0.2 Enterprise</span>
-                </div>
+            <div class="h-16 flex items-center px-6 border-b border-slate-800 overflow-hidden">
+                <img src="/images/logo.png" alt="Company Logo" class="h-7 max-w-[130px] w-auto object-contain">
             </div>
 
             <!-- Navigation Links -->
@@ -79,10 +94,10 @@
     </aside>
 
     <!-- MAIN CONTAINER -->
-    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+    <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         
         <!-- Header -->
-        <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center px-6 justify-between z-10">
+        <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center px-6 justify-between z-10 shrink-0">
             <h1 class="text-lg font-semibold text-slate-100">Notification & SSL Alert Schedules</h1>
             <div id="toastMessage" class="hidden px-3 py-1 rounded bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-mono transition">
                 Settings saved successfully!
@@ -90,95 +105,102 @@
         </header>
 
         <!-- Main Viewport -->
-        <main class="flex-1 overflow-y-auto p-6 space-y-6">
-            <div class="max-w-4xl space-y-6 pb-12">
-                
-                <!-- Alert Threshold Config Requirement -->
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 shadow-xl">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                        <div>
-                            <h2 class="text-sm font-semibold text-slate-200">SSL Certificate Expiration Alert Triggers</h2>
-                            <p class="text-xs text-slate-400 mt-0.5">Automated dispatch rules for SSL expiration schedules.</p>
+        <div class="flex-1 overflow-y-auto flex flex-col justify-between">
+            <main class="w-full flex justify-center p-6">
+                <div class="max-w-4xl w-full space-y-6 pb-12">
+                    
+                    <!-- Alert Threshold Config Requirement -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 shadow-xl">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <div>
+                                <h2 class="text-sm font-semibold text-slate-200">SSL Certificate Expiration Alert Triggers</h2>
+                                <p class="text-xs text-slate-400 mt-0.5">Automated dispatch rules for SSL expiration schedules.</p>
+                            </div>
+                            <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Read-Only Schedule</span>
                         </div>
-                        <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">Read-Only Schedule</span>
+
+                        <div class="space-y-3 pt-2">
+                            <label class="flex items-center space-x-3 text-xs text-slate-300 p-2 rounded hover:bg-slate-800/40 transition">
+                                <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue h-4 w-4">
+                                <span>Send Alert <strong class="text-slate-100 font-mono">14 Days</strong> before expiration</span>
+                            </label>
+                            <label class="flex items-center space-x-3 text-xs text-slate-300 p-2 rounded hover:bg-slate-800/40 transition">
+                                <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue h-4 w-4">
+                                <span>Send Alert <strong class="text-slate-100 font-mono">7 Days</strong> before expiration</span>
+                            </label>
+                            <label class="flex items-center space-x-3 text-xs text-slate-300 p-2 rounded hover:bg-slate-800/40 transition">
+                                <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue h-4 w-4">
+                                <span>Send Alert <strong class="text-slate-100 font-mono">3 Days</strong> before expiration</span>
+                            </label>
+                            <label class="flex items-center space-x-3 text-xs text-slate-300 p-2 rounded hover:bg-slate-800/40 transition">
+                                <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue h-4 w-4">
+                                <span>Send Alert <strong class="text-slate-100 font-mono">2 Days</strong> before expiration</span>
+                            </label>
+                            <label class="flex items-center space-x-3 text-xs text-slate-300 p-2 rounded hover:bg-slate-800/40 transition">
+                                <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue h-4 w-4">
+                                <span>Send Critical Alert <strong class="text-brand-red font-mono">6 Hours</strong> before expiration</span>
+                            </label>
+                            <label class="flex items-center space-x-3 text-xs text-emerald-400 font-semibold pt-2 border-t border-slate-800/60 p-2 rounded hover:bg-slate-800/40 transition">
+                                <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-emerald-500 h-4 w-4">
+                                <span>Send Alert after SSL Certificate has been successfully <strong class="uppercase font-mono">RENEWED</strong></span>
+                            </label>
+                        </div>
                     </div>
 
-                    <div class="space-y-3 pt-2">
-                        <label class="flex items-center space-x-3 text-xs text-slate-300 p-2 rounded hover:bg-slate-800/40 transition">
-                            <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue h-4 w-4">
-                            <span>Send Alert <strong class="text-slate-100 font-mono">14 Days</strong> before expiration</span>
-                        </label>
-                        <label class="flex items-center space-x-3 text-xs text-slate-300 p-2 rounded hover:bg-slate-800/40 transition">
-                            <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue h-4 w-4">
-                            <span>Send Alert <strong class="text-slate-100 font-mono">7 Days</strong> before expiration</span>
-                        </label>
-                        <label class="flex items-center space-x-3 text-xs text-slate-300 p-2 rounded hover:bg-slate-800/40 transition">
-                            <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue h-4 w-4">
-                            <span>Send Alert <strong class="text-slate-100 font-mono">3 Days</strong> before expiration</span>
-                        </label>
-                        <label class="flex items-center space-x-3 text-xs text-slate-300 p-2 rounded hover:bg-slate-800/40 transition">
-                            <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue h-4 w-4">
-                            <span>Send Alert <strong class="text-slate-100 font-mono">2 Days</strong> before expiration</span>
-                        </label>
-                        <label class="flex items-center space-x-3 text-xs text-slate-300 p-2 rounded hover:bg-slate-800/40 transition">
-                            <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-brand-blue h-4 w-4">
-                            <span>Send Critical Alert <strong class="text-brand-red font-mono">6 Hours</strong> before expiration</span>
-                        </label>
-                        <label class="flex items-center space-x-3 text-xs text-emerald-400 font-semibold pt-2 border-t border-slate-800/60 p-2 rounded hover:bg-slate-800/40 transition">
-                            <input type="checkbox" checked disabled class="rounded bg-slate-950 border-slate-800 text-emerald-500 h-4 w-4">
-                            <span>Send Alert after SSL Certificate has been successfully <strong class="uppercase font-mono">RENEWED</strong></span>
-                        </label>
+                    <!-- Webhook Integrations Form -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 shadow-xl">
+                        <div class="border-b border-slate-800 pb-3">
+                            <h2 class="text-sm font-semibold text-slate-200">Notification Webhooks & Recipients</h2>
+                            <p class="text-xs text-slate-400 mt-0.5">Configure endpoints for alert broadcasts and escalation channels.</p>
+                        </div>
+
+                        <form id="settingsForm" onsubmit="saveSettings(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Slack Incoming Webhook URL</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500"><i class="fa-brands fa-slack"></i></span>
+                                    <input type="url" id="slackWebhook" placeholder="https://hooks.slack.com/services/..." class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-brand-blue transition">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Microsoft Teams Webhook URL</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500"><i class="fa-brands fa-microsoft"></i></span>
+                                    <input type="url" id="teamsWebhook" placeholder="https://fobng.webhook.office.com/webhookb2/..." class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-brand-blue transition">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Alert Email Recipient</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500"><i class="fa-solid fa-envelope"></i></span>
+                                    <input type="email" id="alertEmail" placeholder="infosystem@fob.ng" class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-brand-blue transition">
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons Container (Save & Test Email) -->
+                            <div class="pt-2 flex flex-wrap items-center gap-3">
+                                <button type="submit" class="bg-brand-blue hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-lg shadow-brand-blue/20 transition flex items-center space-x-2">
+                                    <i class="fa-solid fa-floppy-disk"></i>
+                                    <span>Save Settings</span>
+                                </button>
+                                <button type="button" onclick="sendTestEmail()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center space-x-2">
+                                    <i class="fa-solid fa-paper-plane text-brand-blue"></i>
+                                    <span>Send Test Email</span>
+                                </button>
+                            </div>
+                        </form>
                     </div>
+
                 </div>
+            </main>
 
-                <!-- Webhook Integrations Form -->
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 shadow-xl">
-                    <div class="border-b border-slate-800 pb-3">
-                        <h2 class="text-sm font-semibold text-slate-200">Notification Webhooks & Recipients</h2>
-                        <p class="text-xs text-slate-400 mt-0.5">Configure endpoints for alert broadcasts and escalation channels.</p>
-                    </div>
-
-                    <form id="settingsForm" onsubmit="saveSettings(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-medium text-slate-300 mb-1">Slack Incoming Webhook URL</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500"><i class="fa-brands fa-slack"></i></span>
-                                <input type="url" id="slackWebhook" placeholder="https://hooks.slack.com/services/..." class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-brand-blue transition">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-medium text-slate-300 mb-1">Microsoft Teams Webhook URL</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500"><i class="fa-brands fa-microsoft"></i></span>
-                                <input type="url" id="teamsWebhook" placeholder="https://fobng.webhook.office.com/webhookb2/..." class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-brand-blue transition">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-medium text-slate-300 mb-1">Alert Email Recipient</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500"><i class="fa-solid fa-envelope"></i></span>
-                                <input type="email" id="alertEmail" placeholder="infosystem@fob.ng" class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-brand-blue transition">
-                            </div>
-                        </div>
-
-                        <div class="pt-2">
-                            <button type="submit" class="bg-brand-blue hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-lg shadow-brand-blue/20 transition flex items-center space-x-2">
-                                <i class="fa-solid fa-floppy-disk"></i>
-                                <span>Save Settings</span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-            </div>
-        </main>
-
-        <!-- Footer -->
-        <footer class="h-10 bg-slate-900 border-t border-slate-800 flex items-center justify-center px-6 text-xs text-slate-500 font-mono">
-            Fiberone Broadband v1.0.2
-        </footer>
+            <!-- Footer -->
+            <footer class="h-10 bg-slate-900 border-t border-slate-800 flex items-center justify-center px-6 text-xs text-slate-500 font-mono shrink-0">
+                Fiberone Broadband v1.0.2
+            </footer>
+        </div>
     </div>
 
 <script>
@@ -222,17 +244,42 @@ async function saveSettings(e) {
         });
         
         if (res.ok || res.status === 404) {
-            showToast();
+            showToast("Settings saved successfully!");
         }
     } catch (err) {
-        // Fallback local storage confirmation if backend api endpoint is mocked
         localStorage.setItem('fob_settings', JSON.stringify(payload));
-        showToast();
+        showToast("Settings saved successfully!");
     }
 }
 
-function showToast() {
+// Test Email handler
+async function sendTestEmail() {
+    const alertEmail = document.getElementById("alertEmail").value;
+    if (!alertEmail) {
+        alert("Please provide an Alert Email Recipient address first.");
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE}/api/settings/test-email`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: alertEmail })
+        });
+        
+        if (res.ok) {
+            showToast("Test email dispatched successfully!");
+        } else {
+            showToast("Test email request sent.");
+        }
+    } catch (err) {
+        showToast("Test email triggered (Offline/Mock mode).");
+    }
+}
+
+function showToast(message) {
     const toast = document.getElementById("toastMessage");
+    toast.textContent = message;
     toast.classList.remove("hidden");
     setTimeout(() => {
         toast.classList.add("hidden");

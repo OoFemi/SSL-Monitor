@@ -13,26 +13,4 @@
   "category" : "Production",
   "tags" : [ "Frontend" ],
   "renewalUrl" : "https://cheapsslsecurity.com/"
-}, {
-  "url" : "112.67.30.165/radiusmanager/admin.php",
-  "category" : "Production",
-  "tags" : [ "API" ],
-  "tag" : "API",
-  "renewalUrl" : ""
-}, {
-  "url" : "https:fob.ng",
-  "category" : "Production",
-  "tags" : [ "Frontend" ],
-  "renewalUrl" : ""
-}, {
-  "url" : "https://fob.ng",
-  "category" : "Production",
-  "tags" : [ "Frontend" ],
-  "renewalUrl" : ""
-}, {
-  "url" : "https:odoo.fob.ng",
-  "category" : "Production",
-  "tags" : [ "API" ],
-  "tag" : "API",
-  "renewalUrl" : ""
 } ]

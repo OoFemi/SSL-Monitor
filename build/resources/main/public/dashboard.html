@@ -11,7 +11,7 @@
             theme: {
                 extend: {
                     colors: {
-                        brand: { blue: '#0066ff', red: '#ff3333', hoverBlue: '#0052cc' },
+                        brand: { blue: '#0066ff', red: '#ff3333', hoverBlue: '#0052cc', hoverRed: '#cc0000' },
                         slate: { 850: '#151f32', 900: '#0f172a', 950: '#020617' }
                     }
                 }
@@ -26,13 +26,9 @@
     <!-- SIDEBAR NAVIGATION -->
     <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between hidden md:flex">
         <div>
-            <!-- Brand Header -->
-            <div class="h-16 flex items-center px-6 border-b border-slate-800 space-x-3">
-                <img src="/images/logo.png" alt="Company Logo" class="h-8 w-8 object-contain">
-                <div>
-                    <span class="font-bold tracking-wide text-sm block">FOB SSL Monitor</span>
-                    <span class="text-[10px] text-brand-blue font-mono uppercase tracking-widest">v1.0.2 Enterprise</span>
-                </div>
+            <!-- Brand Header (Logo Only) -->
+            <div class="h-20 flex flex-col items-center justify-center px-6 border-b border-slate-800">
+                <img src="/images/logo.png" alt="Company Logo" class="h-10 w-auto object-contain">
             </div>
 
             <!-- Navigation Links -->
@@ -79,17 +75,17 @@
         </div>
     </aside>
 
-    <!-- MAIN CONTENT AREA (VIEW ONLY) -->
+    <!-- MAIN CONTENT AREA -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Navbar -->
         <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 z-10">
             <div class="flex items-center space-x-4">
                 <h1 class="text-lg font-semibold text-slate-100">Real-time Website & SSL Health</h1>
-                <span class="text-xs text-slate-400 hidden sm:inline" id="autoRefreshLabel">Auto-refresh every 6 hours</span>
+                <span class="text-xs text-slate-400 hidden sm:inline" id="autoRefreshLabel">Auto-refresh every 30 seconds</span>
             </div>
 
-            <div class="flex items-center space-x-3">
+            <div class="flex items-center space-x-4">
                 <span id="lastUpdated" class="text-xs text-slate-400 hidden lg:inline">Last updated: —</span>
                 <button id="refreshBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-2 border border-slate-700">
                     <i class="fa-solid fa-rotate"></i>
@@ -182,12 +178,11 @@
 
         <!-- Footer -->
         <footer class="h-10 bg-slate-900 border-t border-slate-800 flex items-center justify-center px-6 text-xs text-slate-500 font-mono">
-            Developer: Femi Adeyemi for FOB IT  v1.0.2
+            Developer: Femi Adeyemi for FOB IT &nbsp; v1.0.2
         </footer>
     </div>
 
 <script>
-// Use empty string for relative path resolution across different IPs/hosts
 const API_BASE = "";
 
 // Theme Switch Logic
@@ -223,7 +218,6 @@ async function loadDashboard() {
             if (row.isUp) up++; else down++;
             totalResp += row.responseTime || 0;
             
-            // Only aggregate SSL days if it's a valid SSL certificate (>= 0)
             if (row.sslDays >= 0) {
                 totalSSL += row.sslDays;
                 sslCount++;
@@ -289,9 +283,9 @@ async function loadDashboard() {
 
 document.getElementById("refreshBtn").addEventListener("click", loadDashboard);
 
-const SIX_HOURS_MS = 21600000;
+const THIRTY_SECONDS_MS = 30000;
 loadDashboard();
-setInterval(loadDashboard, SIX_HOURS_MS);
+setInterval(loadDashboard, THIRTY_SECONDS_MS);
 </script>
 </body>
 </html>

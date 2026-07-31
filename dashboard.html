@@ -1,127 +1,213 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FOB Uptime Monitor – Dashboard</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="chart.js"></script>
-</head>
-<body>
-    <div class="sidebar">
-        <h2>FOB Uptime Monitor</h2>
-        <ul>
-            <li><a href="dashboard.html" class="active">Dashboard</a></li>
-            <li><a href="admin.html">Admin</a></li>
-            <li><a href="logs.html">Logs</a></li>
-            <li><a href="settings.html">Settings</a></li>
-        </ul>
-        <div class="darkModeToggle">
-            <input type="checkbox" id="darkModeCheckbox">
-            <label for="darkModeCheckbox">Dark mode</label>
-        </div>
-    </div>
-
-    <div class="main-content">
-        <h1>Real-time Website Health</h1>
-        <p class="subtitle">Auto-refresh every 2 minutes</p>
-
-        <div class="metrics-grid">
-            <div class="card green">
-                <h3>UP</h3>
-                <p id="upCount">0</p>
-            </div>
-            <div class="card red">
-                <h3>DOWN</h3>
-                <p id="downCount">0</p>
-            </div>
-            <div class="card blue">
-                <h3>AVG RESPONSE</h3>
-                <p id="avgResponse">0 ms</p>
-            </div>
-            <div class="card purple">
-                <h3>SSL EXPIRY</h3>
-                <p id="sslDays">0 Days Left</p>
-            </div>
-        </div>
-
-        <table class="uptime-table">
-            <thead>
-                <tr>
-                    <th>Target URL</th>
-                    <th>Category / Tags</th>
-                    <th>Status</th>
-                    <th>Last Check</th>
-                    <th>Avg. Response Time</th>
-                    <th>SSL Days Left</th>
-                    <th>Trend</th>
-                </tr>
-            </thead>
-            <tbody id="urlTableBody">
-                <!-- Dynamically populated via JavaScript -->
-            </tbody>
-        </table>
-
-        <div class="actions-bar">
-            <span id="lastUpdated">Last updated: —</span>
-            <div>
-                <button id="refreshBtn" class="btn primary">Refresh</button>
-                <button id="exportCsvBtn" class="btn secondary">Export CSV</button>
-            </div>
-        </div>
-    </div>
-
+    <title>FOB SSL Monitor — Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        async function fetchDashboardData() {
-            try {
-                // Using a clean relative path to avoid port or IP mismatch issues
-                const response = const response = await fetch('http://192.168.2.41:7000/urls');
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { blue: '#0066ff', red: '#ff3333', hoverBlue: '#0052cc', hoverRed: '#e60000' },
+                        slate: { 850: '#151f32', 900: '#0f172a', 950: '#020617' }
+                    }
                 }
-                const data = await response.json();
-
-                // Update summary metrics
-                document.getElementById('upCount').textContent = data.upCount || 0;
-                document.getElementById('downCount').textContent = data.downCount || 0;
-                document.getElementById('avgResponse').textContent = data.avgResponse || '0 ms';
-                document.getElementById('sslDays').textContent = (data.sslDays !== undefined ? data.sslDays : 0) + ' Days Left';
-
-                // Populate table rows
-                const tbody = document.getElementById('urlTableBody');
-                tbody.innerHTML = '';
-
-                if (data.items && data.items.length > 0) {
-                    data.items.forEach(item => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td>${item.url}</td>
-                            <td>${item.category}</td>
-                            <td><span class="badge ${item.status.toLowerCase()}">${item.status}</span></td>
-                            <td>${new Date(item.lastCheck).toLocaleTimeString()}</td>
-                            <td>${item.avgResponseTime}</td>
-                            <td>${item.sslDaysLeft} days</td>
-                            <td>${item.trend}</td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                }
-
-                document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
-            } catch (error) {
-                console.error('Failed to fetch dashboard data:', error);
             }
         }
-
-        // Initial fetch on page load
-        fetchDashboardData();
-
-        // Auto-refresh every 2 minutes
-        setInterval(fetchDashboardData, 120000);
-
-        // Manual refresh button handler
-        document.getElementById('refreshBtn').addEventListener('click', fetchDashboardData);
     </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased flex h-screen overflow-hidden">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between hidden md:flex">
+        <div>
+            <div class="h-16 flex items-center px-6 border-b border-slate-800 space-x-3">
+                <img src="/images/logo.png" alt="Company Logo" class="h-8 w-8 object-contain">
+                <div>
+                    <span class="font-bold tracking-wide text-sm block">FOB SSL Monitor</span>
+                    <span class="text-[10px] text-brand-blue font-mono uppercase tracking-widest">v1.0.2 Enterprise</span>
+                </div>
+            </div>
+
+            <nav class="p-4 space-y-1">
+                <a href="dashboard.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                    <i class="fa-solid fa-chart-line w-5"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="admin.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg bg-brand-blue/10 text-brand-blue font-medium text-sm border border-brand-blue/20">
+                    <i class="fa-solid fa-shield-halved w-5"></i>
+                    <span>Admin</span>
+                </a>
+                <a href="logs.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                    <i class="fa-solid fa-terminal w-5"></i>
+                    <span>Logs</span>
+                </a>
+                <a href="documentation.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                    <i class="fa-solid fa-book w-5"></i>
+                    <span>Documentation</span>
+                </a>
+                <a href="about.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                    <i class="fa-solid fa-circle-info w-5"></i>
+                    <span>About</span>
+                </a>
+                <a href="settings.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition text-sm">
+                    <i class="fa-solid fa-gear w-5"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- AUTH GATE OVERLAY -->
+    <div id="authOverlay" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 max-w-sm w-full shadow-2xl space-y-6">
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 rounded-xl bg-brand-blue/10 border border-brand-blue/20 text-brand-blue flex items-center justify-center mx-auto text-lg">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h2 class="text-lg font-bold text-slate-100">Admin Authentication</h2>
+                <p class="text-xs text-slate-400">Secure access to endpoint management & SSL provider configuration.</p>
+            </div>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Username</label>
+                    <input id="loginUser" type="text" required placeholder="admin" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-brand-blue">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Password</label>
+                    <input id="loginPass" type="password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-brand-blue">
+                </div>
+                <p id="loginError" class="text-xs text-brand-red hidden"></p>
+                <button type="submit" class="w-full bg-brand-blue hover:bg-brand-hoverBlue text-white py-2.5 rounded-lg text-xs font-semibold transition shadow-lg shadow-brand-blue/25">Authenticate Session</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 z-10">
+            <div class="flex items-center space-x-4">
+                <h1 class="text-lg font-semibold text-slate-100">Admin Management Portal</h1>
+            </div>
+            <button id="logoutBtn" class="bg-brand-red/10 hover:bg-brand-red/20 text-brand-red border border-brand-red/20 px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-2">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Lock Session</span>
+            </button>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-6 space-y-6">
+            
+            <!-- FORM 1: TARGET URL MANAGEMENT -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl max-w-5xl">
+                <div class="border-b border-slate-800 pb-4 mb-4 flex justify-between items-center">
+                    <div>
+                        <h2 id="urlFormTitle" class="text-sm font-semibold text-slate-200">Add / Edit Target Endpoint</h2>
+                    </div>
+                    <button id="cancelUrlEditBtn" class="hidden text-xs text-brand-red hover:underline">Cancel Edit</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-medium text-slate-300">Target URL</label>
+                        <input id="urlInput" type="url" placeholder="https://api.fob.ng" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 font-mono focus:outline-none focus:border-brand-blue">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-medium text-slate-300">Category</label>
+                        <select id="categoryInput" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-brand-blue">
+                            <option value="Production">Production</option>
+                            <option value="Test">Test</option>
+                            <option value="Staging">Staging</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-medium text-slate-300">Tag</label>
+                        <select id="tagInput" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-brand-blue">
+                            <option value="API">API</option>
+                            <option value="Frontend">Frontend</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-medium text-slate-300">SSL Renewal URL</label>
+                        <input id="renewalUrlInput" type="url" placeholder="https://cert-manager.com" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 font-mono focus:outline-none focus:border-brand-blue">
+                    </div>
+                </div>
+
+                <div class="mt-5 flex justify-end">
+                    <button id="saveUrlBtn" class="bg-brand-blue hover:bg-brand-hoverBlue text-white px-4 py-2 rounded-lg text-xs font-medium transition shadow-lg shadow-brand-blue/25 flex items-center space-x-2">
+                        <i class="fa-solid fa-plus"></i><span id="saveUrlBtnText">Save Target Endpoint</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- REGISTRY TABLE -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+                <div class="px-6 py-4 border-b border-slate-800">
+                    <h2 class="text-sm font-semibold text-slate-200">Active Monitored URLs Registry</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-950/50 text-slate-400 uppercase tracking-wider border-b border-slate-800 font-mono">
+                                <th class="py-3 px-6">URL</th>
+                                <th class="py-3 px-6">Category</th>
+                                <th class="py-3 px-6">Tags</th>
+                                <th class="py-3 px-6">Status</th>
+                                <th class="py-3 px-6">SSL Days</th>
+                                <th class="py-3 px-6 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminUrlTableBody" class="divide-y divide-slate-800/60 font-medium text-slate-300"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PORTALS TABLE -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl max-w-5xl">
+                <div class="border-b border-slate-800 pb-4 mb-4 flex justify-between items-center">
+                    <h2 id="portalFormTitle" class="text-sm font-semibold text-slate-200">SSL Renewal Provider Websites</h2>
+                    <button id="cancelPortalEditBtn" class="hidden text-xs text-brand-red hover:underline">Cancel Edit</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-medium text-slate-300">Provider Name</label>
+                        <input id="portalName" type="text" placeholder="DigiCert" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-medium text-slate-300">Domain Pattern Filter</label>
+                        <input id="portalPattern" type="text" placeholder="fob.ng" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 font-mono">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-medium text-slate-300">Renewal URL Link</label>
+                        <input id="portalUrl" type="url" placeholder="https://portal.digicert.com" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 font-mono">
+                    </div>
+                </div>
+                <div class="mt-5 flex justify-end">
+                    <button id="savePortalBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-xs font-medium transition shadow-lg flex items-center space-x-2">
+                        <i class="fa-solid fa-link"></i><span id="savePortalBtnText">Save Renewal Provider</span>
+                    </button>
+                </div>
+                <div class="mt-6 overflow-x-auto border border-slate-800 rounded-lg">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-950/50 text-slate-400 uppercase tracking-wider border-b border-slate-800 font-mono">
+                                <th class="py-3 px-4">Provider Name</th>
+                                <th class="py-3 px-4">Domain Matching Filter</th>
+                                <th class="py-3 px-4">Renewal Link</th>
+                                <th class="py-3 px-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="portalsTableBody" class="divide-y divide-slate-800/60 font-medium text-slate-300"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+<script src="admin.js"></script>
 </body>
 </html>

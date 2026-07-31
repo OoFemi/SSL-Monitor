@@ -19,18 +19,34 @@
         }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom clean scrollbar styling anchored to the far right edge of the screen */
+        html {
+            overflow-y: scroll;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #020617;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased flex h-screen overflow-hidden">
 
     <!-- SIDEBAR -->
-    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between hidden md:flex">
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between hidden md:flex shrink-0">
         <div>
-            <div class="h-16 flex items-center px-6 border-b border-slate-800 space-x-3">
-                <div class="w-8 h-8 rounded bg-brand-blue flex items-center justify-center font-bold text-white shadow-lg shadow-brand-blue/30">F</div>
-                <div>
-                    <span class="font-bold tracking-wide text-sm block">FOB SSL Monitor</span>
-                    <span class="text-[10px] text-brand-blue font-mono uppercase tracking-widest">v1.0.2 Enterprise</span>
-                </div>
+            <!-- Brand Header -->
+            <div class="h-16 flex items-center px-6 border-b border-slate-800 overflow-hidden">
+                <img src="/images/logo.png" alt="Company Logo" class="h-7 max-w-[130px] w-auto object-contain">
             </div>
 
             <nav class="p-4 space-y-1">
@@ -87,9 +103,9 @@
         </div>
     </div>
 
-    <!-- MAIN CONTENT -->
-    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 z-10">
+    <!-- MAIN CONTAINER -->
+    <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+        <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 z-10 shrink-0">
             <div class="flex items-center space-x-4">
                 <h1 class="text-lg font-semibold text-slate-100">Admin Management Portal</h1>
             </div>
@@ -99,7 +115,8 @@
             </button>
         </header>
 
-        <main class="flex-1 overflow-y-auto p-6 space-y-6">
+        <!-- Main Viewport -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
             
             <!-- FORM 1: TARGET URL MANAGEMENT -->
             <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl max-w-5xl">
@@ -144,7 +161,7 @@
             </div>
 
             <!-- REGISTRY TABLE -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl max-w-5xl">
                 <div class="px-6 py-4 border-b border-slate-800">
                     <h2 class="text-sm font-semibold text-slate-200">Active Monitored URLs Registry</h2>
                 </div>
@@ -166,7 +183,7 @@
             </div>
 
             <!-- PORTALS TABLE -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl max-w-5xl">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl max-w-5xl mb-12">
                 <div class="border-b border-slate-800 pb-4 mb-4 flex justify-between items-center">
                     <h2 id="portalFormTitle" class="text-sm font-semibold text-slate-200">SSL Renewal Provider Websites</h2>
                     <button id="cancelPortalEditBtn" class="hidden text-xs text-brand-red hover:underline">Cancel Edit</button>
@@ -205,7 +222,7 @@
                 </div>
             </div>
 
-        </main>
+        </div>
     </div>
 
 <script src="admin.js"></script>
