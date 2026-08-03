@@ -14,15 +14,39 @@
   "tags" : [ "Frontend" ],
   "renewalUrl" : "https://cheapsslsecurity.com/"
 }, {
-  "url" : "htpp://kjnfkjf.com",
+  "url" : "http://102.67.30.165/radiusmanager/admin.php",
   "category" : "Production",
+  "tags" : [ "Frontend" ],
+  "tag" : "Frontend",
+  "renewalUrl" : ""
+}, {
+  "url" : "https://odoo.kkontech.com/web/login",
+  "category" : "Production",
+  "tags" : [ "Frontend" ],
+  "tag" : "Frontend",
+  "renewalUrl" : ""
+}, {
+  "url" : "https://fob.ng",
+  "category" : "Production",
+  "tags" : [ "Frontend" ],
+  "tag" : "Frontend",
+  "renewalUrl" : "https://cheapsslsecurity.com/"
+}, {
+  "url" : "https://eservice2.fob.ng",
+  "category" : "Staging",
+  "tags" : [ "Frontend" ],
+  "tag" : "Frontend",
+  "renewalUrl" : "https://cheapsslsecurity.com/"
+}, {
+  "url" : "http://test.com",
+  "category" : "Test",
   "tags" : [ "API" ],
   "tag" : "API",
   "renewalUrl" : ""
 }, {
-  "url" : "www,.kjdvndj.com",
+  "url" : "https://sslmonitor.fob.com.ng",
   "category" : "Production",
-  "tags" : [ "API" ],
-  "tag" : "API",
+  "tags" : [ "Frontend" ],
+  "tag" : "Frontend",
   "renewalUrl" : ""
 } ]
